@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 #  HyBrike.py
@@ -11,6 +11,8 @@ from tkinter import *
 from tkinter import ttk
 from time import sleep
 import serial
+
+from decodageArduino import *
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
 ser.readline()
@@ -55,19 +57,10 @@ def updateData(dataTab, data, *args):
 
 def getData(*args):
     
+    data = {}
     while(True):
         """Lecture des données issues d'Arduino"""
-        #Format de donnée csv avec ";" comme séparateur : le format recu est : b'0000;2222;2222\n'
-        dataRaw = str(ser.readline()) 
-        
-        #On enlève le premier caractère (b pour signaler une variable octale) et les caractères spéciaux (' et \n)
-        dataRaw = dataRaw[1:]
-        dataRaw = dataRaw.replace("'","")
-        dataRaw = dataRaw.replace("\\n","")
-        
-        """Séparation des variables, traitement et insertion dans un dictionnaire pour être plus lisible"""
-        dataTab = dataRaw.split(";")
-        data = {}
+        dataTab = decodageArduino(ser)
         
         """Mise à jour des variables et de l'affichage"""
         updateData(dataTab, data)
