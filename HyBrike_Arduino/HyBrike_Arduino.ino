@@ -21,11 +21,14 @@ void loop() {
     accelerateurValue = accelerateurValue/tauxActu;
   }
   
-  //Variables de simulation
+  //Variables de simulation à développer
   int batterieValue = 512;
+  int freinValue = 256;
 
   //Renvoi console sous forme csv (séparateur ;)
   Serial.print(accelerateurValue);
+  Serial.print(";");
+  Serial.print(freinValue);
   Serial.print(";");
   Serial.print(batterieValue);
   Serial.print("\n");
