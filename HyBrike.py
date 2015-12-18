@@ -26,7 +26,7 @@ def getData(*args):
         dataRaw = dataRaw.replace("'","")
         dataRaw = dataRaw.replace("\\n","")
         #Séparation des variables, traitement et insertion dans un dictionnaire pour être plus lisible
-        #Format Arduino : acc;frein;batt
+        """Format Arduino : acc;frein;batt"""
         dataTab = dataRaw.split(";")
         data = {}
         data["valAcc"] = int(int(dataTab[0])/1023*100)
@@ -74,28 +74,30 @@ cadre.columnconfigure(0, weight=1)
 cadre.rowconfigure(0, weight=1)
 
 #Cadre Accélérateur
-frameAcc = ttk.Labelframe(cadre, text='Accélérateur', padding="3 3 12 12")
+frameAcc = ttk.Labelframe(cadre, text=' Accélérateur ', padding="3 3 12 12")
 frameAcc.grid(column=1, row=1, sticky=(N, W, E, S), rowspan=2, columnspan=5)
 
 ttk.Progressbar(frameAcc, orient=HORIZONTAL, length=400, mode='determinate', variable=accelerateurValeur, maximum=100).grid(column=1, row=1, sticky=(W, E))
 ttk.Label(frameAcc, textvariable=valeurAccStr).grid(column=1, row=2)
 
 #Cadre Frein
-frameFrein = ttk.Labelframe(cadre, text='Frein', padding="3 3 12 12")
+frameFrein = ttk.Labelframe(cadre, text=' Frein ', padding="3 3 12 12")
 frameFrein.grid(column=1, row=3, sticky=(N, W, E, S), rowspan=2, columnspan=5)
 
 ttk.Progressbar(frameFrein, orient=HORIZONTAL, length=400, mode='determinate', variable=freinValeur, maximum=100).grid(column=1, row=1, sticky=(W, E))
 ttk.Label(frameFrein, textvariable=valeurFreinStr).grid(column=1, row=2)
 
 #Cadre Batterie
-frameBatt = ttk.Labelframe(cadre, text='Batterie', padding="3 3 12 12")
+frameBatt = ttk.Labelframe(cadre, text=' Batterie ', padding="3 3 12 12")
 frameBatt.grid(column=7, row=1, sticky=(N, W, E, S), rowspan = 4)
 
 ttk.Progressbar(frameBatt, orient=VERTICAL, length=100, mode='determinate', variable=batterieValeur, maximum=100).grid(column=1, row=1, rowspan=4, sticky=(W, E))
 ttk.Label(frameBatt, textvariable=valeurBattStr).grid(column=2, row=2, sticky=(E), padx=5)
 ttk.Label(frameBatt, textvariable=voltageBattStr).grid(column=2, row=3, sticky=(E), padx=5)
 
-ttk.Button(cadre, text="start", command=getData).grid(column=3, row=5)
-ttk.Button(cadre, text="quitter", command=fenetre.destroy).grid(column=4, row=5)
+Fbouton = ttk.Frame(cadre)
+Fbouton.grid(column=1, row=5, columnspan=7)
+ttk.Button(Fbouton, text="start", command=getData).grid(column=2, row=1)
+ttk.Button(Fbouton, text="quitter", command=fenetre.destroy).grid(column=3, row=1)
 
 fenetre.mainloop()
