@@ -20,23 +20,9 @@ minVBat = 10.8  #Batterie à 0%
 maxVBat = 13.6  #Batterie à 100%
 capBat = 12     #Capacité en Ah
 
-def getData(*args):
+def updateData(dataTab, data, *args):
     
-    while(True):
-        """Lecture des données issues d'Arduino"""
-        #Format de donnée csv avec ";" comme séparateur : le format recu est : b'0000;2222;2222\n'
-        dataRaw = str(ser.readline()) 
-        
-        #On enlève le premier caractère (b pour signaler une variable octale) et les caractères spéciaux (' et \n)
-        dataRaw = dataRaw[1:]
-        dataRaw = dataRaw.replace("'","")
-        dataRaw = dataRaw.replace("\\n","")
-        
-        """Séparation des variables, traitement et insertion dans un dictionnaire pour être plus lisible"""
-        dataTab = dataRaw.split(";")
-        data = {}
-        
-        #Vérifie si le flux est complet, sinon attendre qu'il le soit
+    #Vérifier si le flux est complet, sinon attendre qu'il n'y ait plus d'erreurs
         try:
             #Format Arduino : acc;frein;batt
             data["valAcc"] = int(int(dataTab[0])/1023*100)
@@ -60,18 +46,37 @@ def getData(*args):
             energieBattStr.set("{0:.2f}".format(capBat*maxVBat*data["valBatt"]/100) + " Wh")
             #Le choix de ces algorithmes de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
          
-        
-            #Mise à jour affichage
-            try:
-                fenetre.update()
-            except TclError:
-                break
         except ValueError:
             #Pause de 10ms
             sleep(0.01)
         except IndexError:
             #Pause de 10ms
             sleep(0.01)
+
+def getData(*args):
+    
+    while(True):
+        """Lecture des données issues d'Arduino"""
+        #Format de donnée csv avec ";" comme séparateur : le format recu est : b'0000;2222;2222\n'
+        dataRaw = str(ser.readline()) 
+        
+        #On enlève le premier caractère (b pour signaler une variable octale) et les caractères spéciaux (' et \n)
+        dataRaw = dataRaw[1:]
+        dataRaw = dataRaw.replace("'","")
+        dataRaw = dataRaw.replace("\\n","")
+        
+        """Séparation des variables, traitement et insertion dans un dictionnaire pour être plus lisible"""
+        dataTab = dataRaw.split(";")
+        data = {}
+        
+        """Mise à jour des variables et de l'affichage"""
+        updateData(dataTab, data)
+        
+        try:
+            fenetre.update()
+        except TclError:
+            break
+
 
 """Interface"""
 fenetre = Tk()
