@@ -13,6 +13,7 @@ from time import sleep
 import serial
 
 from decodageArduino import *
+from moyenneDynamique import *
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
 ser.readline()
@@ -24,6 +25,9 @@ capBat = 12     #Capacité en Ah
 Pmax = 1500     #Puissance electrique maximale du moteur
 Imax = 150.     #Adapter en fonction du capteur (valeur de Imax en A pour 1023 renvoyé par le capteur)
 I0 = 512        #Valeur envoyée par le capteur pour I = 0A
+
+"""Variables"""
+conso = {"moy":0,"nb":0}
 
 def updateData(dataTab, data, *args):
     
@@ -62,6 +66,8 @@ def updateData(dataTab, data, *args):
                 puissanceValeurProd.set(0)
                 valeurPuisConsoStr.set("{0:.0f}".format(puissance) + " W")
                 valeurPuisProdStr.set("0 W")
+                moyenneDynamique(conso,puissance)
+                
             elif(data["valIntensite"] < I0):
                 #Charge
                 tauxEch = Imax/I0            #Echantillonnage
@@ -70,12 +76,17 @@ def updateData(dataTab, data, *args):
                 puissanceValeurProd.set(puissance)
                 valeurPuisConsoStr.set("0 W")
                 valeurPuisProdStr.set("{0:.0f}".format(puissance) + " W")
+                moyenneDynamique(conso,puissance*-1)
+                
             else:
                 #Arrêt
                 puissanceValeurConso.set(0)
                 puissanceValeurProd.set(0)
                 valeurPuisConsoStr.set("0 W")
                 valeurPuisProdStr.set("0 W")
+                moyenneDynamique(conso,0)
+            
+            moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
         
         except ValueError:
             #Pause de 10ms
@@ -131,9 +142,10 @@ puissanceValeurConso = DoubleVar()
 puissanceValeurProd = DoubleVar()
 valeurPuisConsoStr = StringVar()
 valeurPuisProdStr = StringVar()
+moyenneConso = StringVar()
 valeurPuisConsoStr.set("")
 valeurPuisProdStr.set("")
-
+moyenneConso.set("")
 
 
 """Widgets"""
@@ -160,7 +172,7 @@ ttk.Label(frameFrein, textvariable=valeurFreinStr).grid(column=1, row=2)
 frameBatt = ttk.LabelFrame(cadre, text=' Batterie ', padding="5 5 5 5")
 frameBatt.grid(column=7, row=1, sticky=(N, W, E, S), rowspan = 4, columnspan = 2, padx=5, pady=5)
 
-ttk.Progressbar(frameBatt, orient=VERTICAL, length=100, mode='determinate', variable=batterieValeur, maximum=100).grid(column=1, row=1, rowspan=3, sticky=(W, E), padx=5)
+ttk.Progressbar(frameBatt, orient=VERTICAL, length=120, mode='determinate', variable=batterieValeur, maximum=100).grid(column=1, row=1, rowspan=3, sticky=(W, E), padx=5)
 ttk.Label(frameBatt, textvariable=valeurBattStr).grid(column=2, row=1, padx=5)
 ttk.Label(frameBatt, textvariable=voltageBattStr).grid(column=2, row=2, padx=5)
 ttk.Label(frameBatt, textvariable=energieBattStr).grid(column=2, row=3, padx=5)
@@ -175,6 +187,7 @@ ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', var
 ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=puissanceValeurConso, maximum=Pmax).grid(column=3, row=1, rowspan=3, sticky=(W, E), padx=5)
 ttk.Label(frameConso, text="Décharge").grid(column=4, row=1, padx=5)
 ttk.Label(frameConso, textvariable=valeurPuisConsoStr).grid(column=4, row=3, padx=5)
+ttk.Label(frameConso, textvariable=moyenneConso).grid(column=2, row=4, columnspan=2, padx=5, pady=5)
 
 
 #Cadre Boutons
