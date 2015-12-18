@@ -98,7 +98,7 @@ def updateData(dataTab, data, *args):
                 if autonomie < 0:
                     estimationBatt.set("N/A")
                 else:
-                    estimationBatt.set("~" + formatH(autonomie))
+                    estimationBatt.set("~ " + formatH(autonomie))
             except ZeroDivisionError:
                 estimationBatt.set("N/A")
             
@@ -205,8 +205,10 @@ ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', var
 ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=puissanceValeurConso, maximum=Pmax).grid(column=3, row=1, rowspan=3, sticky=(W, E), padx=5)
 ttk.Label(frameConso, text="Décharge").grid(column=4, row=1, padx=5)
 ttk.Label(frameConso, textvariable=valeurPuisConsoStr).grid(column=4, row=3, padx=5)
-ttk.Label(frameConso, textvariable=moyenneConso).grid(column=2, row=4, columnspan=2, padx=5, pady=5)
-ttk.Label(frameConso, textvariable=estimationBatt).grid(column=3, row=4, columnspan=2, padx=5, pady=5)
+Fmoy = ttk.Frame(frameConso)
+Fmoy.grid(column=1, row=4, columnspan=4)
+ttk.Label(Fmoy, textvariable=moyenneConso).grid(column=1, row=1, padx=5, pady=5)
+ttk.Label(Fmoy, textvariable=estimationBatt).grid(column=2, row=1, padx=5, pady=5)
 
 
 #Cadre Boutons
