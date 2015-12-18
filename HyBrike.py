@@ -1,5 +1,11 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+#
+#  HyBrike.py
+#  
+#  Copyright 2015 Jason Gombert <jason.gombert@gmail.com>
+#
+#
 
 from tkinter import *
 from tkinter import ttk
@@ -8,7 +14,7 @@ import serial
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
 
-#Paramètres physiques
+"""Paramètres physiques"""
 minVBat = 10.8  #Batterie à 0%
 maxVBat = 13.6  #Batterie à 100%
 capBat = 12     #Capacité en Ah
@@ -20,22 +26,24 @@ def getData(*args):
     sleep(0.1)
     
     while(True):
-        #Lecture des données issues d'Arduino
-        dataRaw = str(ser.readline()) #Format de donnée csv avec ";" comme séparateur : le format recu est : b'0000;2222;2222\n'
+        """Lecture des données issues d'Arduino"""
+        #Format de donnée csv avec ";" comme séparateur : le format recu est : b'0000;2222;2222\n'
+        dataRaw = str(ser.readline()) 
+        
         #On enlève le premier caractère (b pour signaler une variable octale) et les caractères spéciaux (' et \n)
         dataRaw = dataRaw[1:]
         dataRaw = dataRaw.replace("'","")
         dataRaw = dataRaw.replace("\\n","")
-        #Séparation des variables, traitement et insertion dans un dictionnaire pour être plus lisible
-        """Format Arduino : acc;frein;batt"""
+        
+        """Séparation des variables, traitement et insertion dans un dictionnaire pour être plus lisible"""
+        #Format Arduino : acc;frein;batt
         dataTab = dataRaw.split(";")
         data = {}
         data["valAcc"] = int(int(dataTab[0])/1023*100)
         data["valFrein"] = int(int(dataTab[1])/1023*100)
         data["valBatt"] = int(int(dataTab[2])/1023*100)
         
-        #Mise à jour des variables de l'interface :
-        
+        """Mise à jour des variables de l'interface"""
         ##Accélérateur
         accelerateurValeur.set(data["valAcc"])
         valeurAccStr.set(str(data["valAcc"]) + " %")
@@ -50,10 +58,14 @@ def getData(*args):
         valeurBattStr.set(str(data["valBatt"]) + " %")
         voltageBattStr.set("{0:.2f}".format(Tension) + " V")
         energieBattStr.set("{0:.2f}".format(capBat*maxVBat*data["valBatt"]/100) + " Wh")
+        #Le choix de ces algorithmes de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
+         
         
         #Mise à jour affichage
-        fenetre.update()
-
+        try:
+            fenetre.update()
+        except TclError:
+            break
 
 """Interface"""
 fenetre = Tk()
@@ -111,6 +123,7 @@ ttk.Label(frameBatt, textvariable=valeurBattStr).grid(column=2, row=1, padx=5)
 ttk.Label(frameBatt, textvariable=voltageBattStr).grid(column=2, row=2, padx=5)
 ttk.Label(frameBatt, textvariable=energieBattStr).grid(column=2, row=3, padx=5)
 
+#Cadre Boutons
 Fbouton = ttk.Frame(cadre)
 Fbouton.grid(column=1, row=5, columnspan=7)
 ttk.Button(Fbouton, text="Start", command=getData).grid(column=2, row=1, pady=5)
