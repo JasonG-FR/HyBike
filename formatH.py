@@ -23,10 +23,17 @@ def formatH(heures):
     MM *= 60
     MM = int(MM)
     
-    return str(HH) + ":" + str(MM)
+    H = str(HH)
+    if MM < 10:
+        M = "0" + str(MM)
+    else:
+        M = str(MM)
+    
+    return H + ":" + M
 
 if __name__ == '__main__':
     
     print("1.5h = " + formatH(1.5))
     print("1.25h = " + formatH(1.25))
     print("1.8525741h = " + formatH(1.8525741))
+    print("1.05h = " + formatH(1.05))
