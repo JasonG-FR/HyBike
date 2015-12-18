@@ -13,6 +13,7 @@ from time import sleep
 import serial
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
+ser.readline()
 
 """Paramètres physiques"""
 minVBat = 10.8  #Batterie à 0%
@@ -20,10 +21,6 @@ maxVBat = 13.6  #Batterie à 100%
 capBat = 12     #Capacité en Ah
 
 def getData(*args):
-    
-    #On élimine la première lecture qui est incomplète
-    ser.readline()
-    sleep(0.1)
     
     while(True):
         """Lecture des données issues d'Arduino"""
@@ -36,36 +33,45 @@ def getData(*args):
         dataRaw = dataRaw.replace("\\n","")
         
         """Séparation des variables, traitement et insertion dans un dictionnaire pour être plus lisible"""
-        #Format Arduino : acc;frein;batt
         dataTab = dataRaw.split(";")
         data = {}
-        data["valAcc"] = int(int(dataTab[0])/1023*100)
-        data["valFrein"] = int(int(dataTab[1])/1023*100)
-        data["valBatt"] = int(int(dataTab[2])/1023*100)
         
-        """Mise à jour des variables de l'interface"""
-        ##Accélérateur
-        accelerateurValeur.set(data["valAcc"])
-        valeurAccStr.set(str(data["valAcc"]) + " %")
+        #Vérifie si le flux est complet, sinon attendre qu'il le soit
+        try:
+            #Format Arduino : acc;frein;batt
+            data["valAcc"] = int(int(dataTab[0])/1023*100)
+            data["valFrein"] = int(int(dataTab[1])/1023*100)
+            data["valBatt"] = int(int(dataTab[2])/1023*100)
         
-        ##Frein
-        freinValeur.set(data["valFrein"])
-        valeurFreinStr.set(str(data["valFrein"]) + " %")
+            """Mise à jour des variables de l'interface"""
+            ##Accélérateur
+            accelerateurValeur.set(data["valAcc"])
+            valeurAccStr.set(str(data["valAcc"]) + " %")
         
-        ##Batterie
-        Tension = data["valBatt"]*(maxVBat-minVBat)/100.+minVBat
-        batterieValeur.set(data["valBatt"])
-        valeurBattStr.set(str(data["valBatt"]) + " %")
-        voltageBattStr.set("{0:.2f}".format(Tension) + " V")
-        energieBattStr.set("{0:.2f}".format(capBat*maxVBat*data["valBatt"]/100) + " Wh")
-        #Le choix de ces algorithmes de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
+            ##Frein
+            freinValeur.set(data["valFrein"])
+            valeurFreinStr.set(str(data["valFrein"]) + " %")
+        
+            ##Batterie
+            Tension = data["valBatt"]*(maxVBat-minVBat)/100.+minVBat
+            batterieValeur.set(data["valBatt"])
+            valeurBattStr.set(str(data["valBatt"]) + " %")
+            voltageBattStr.set("{0:.2f}".format(Tension) + " V")
+            energieBattStr.set("{0:.2f}".format(capBat*maxVBat*data["valBatt"]/100) + " Wh")
+            #Le choix de ces algorithmes de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
          
         
-        #Mise à jour affichage
-        try:
-            fenetre.update()
-        except TclError:
-            break
+            #Mise à jour affichage
+            try:
+                fenetre.update()
+            except TclError:
+                break
+        except ValueError:
+            #Pause de 10ms
+            sleep(0.01)
+        except IndexError:
+            #Pause de 10ms
+            sleep(0.01)
 
 """Interface"""
 fenetre = Tk()
