@@ -9,6 +9,11 @@ import serial
 ser = serial.Serial('/dev/ttyACM0', 9600)
 
 def getData(*args):
+    
+    #On élimine la première lecture qui est incomplète
+    ser.readline()
+    sleep(1/30)
+    
     while(True):
         #Lecture des données issues d'Arduino
         dataRaw = str(ser.readline()) #Format de donnée csv avec ";" comme séparateur : le format recu est : b'0000;2222;2222\n'
@@ -16,31 +21,21 @@ def getData(*args):
         dataRaw = dataRaw[1:]
         dataRaw = dataRaw.replace("'","")
         dataRaw = dataRaw.replace("\\n","")
-        #Séparation des variables
+        #Séparation des variables, traitement et insertion dans un dictionnaire pour être plus lisible
         dataTab = dataRaw.split(";")
         data = {}
-        """Amélioration : utiliser un dictionnaire?"""
-        print(data)
-        print(type(data))
-        dataTab = data.split(";")
+        data["valAcc"] = int(int(dataTab[0])/1023*100)
+        data["valBatt"] = int(int(dataTab[1])/1023*100)
         
-        
-        valeurAccRaw = str(dataTab[0])
-        valeurBattRaw = str(dataTab[1])
-        print(valeurAccRaw)
-        print(type(valeurAccRaw))
-        
-        #Traitement :
+        #Mise à jour des variables de l'interface :
         
         ##Accélérateur
-        valeurAcc = int(int(valeurAccRaw)/1023*100)
-        accelerateurValeur.set(valeurAcc)
-        valeurAccStr.set(str(valeurAcc) + " %")
+        accelerateurValeur.set(data["valAcc"])
+        valeurAccStr.set(str(data["valAcc"]) + " %")
         
         ##Batterie
-        valeurBatt = int(int(valeurBattRaw)/1023*100)
-        batterieValeur.set(valeurBatt)
-        valeurBattStr.set(str(valeurBatt) + " %")
+        batterieValeur.set(data["valBatt"])
+        valeurBattStr.set(str(data["valBatt"]) + " %")
         
         #Mise à jour affichage
         fenetre.update()
