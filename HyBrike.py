@@ -14,6 +14,7 @@ import serial
 
 from decodageArduino import *
 from moyenneDynamique import *
+from formatH import *
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
 ser.readline()
@@ -54,8 +55,12 @@ def updateData(dataTab, data, *args):
             batterieValeur.set(data["valBatt"])
             valeurBattStr.set(str(data["valBatt"]) + " %")
             voltageBattStr.set("{0:.2f}".format(Tension) + " V")
-            energieBattStr.set("{0:.2f}".format(capBat*maxVBat*data["valBatt"]/100) + " Wh")
-            #Le choix de ces algorithmes de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
+            
+            #Le choix de cet algorithme de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
+            energie = capBat*maxVBat*data["valBatt"]/100
+            
+            energieBattStr.set("{0:.2f}".format(energie) + " Wh")
+            
         
             ##Consommation
             if(data["valIntensite"] > I0):
@@ -88,6 +93,15 @@ def updateData(dataTab, data, *args):
                 moyenneDynamique(conso,0,majMoy)
             
             moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
+            try:
+                autonomie = energie/conso["moy"]
+                if autonomie < 0:
+                    estimationBatt.set("N/A")
+                else:
+                    estimationBatt.set("~" + formatH(autonomie))
+            except ZeroDivisionError:
+                estimationBatt.set("N/A")
+            
         
         except ValueError:
             #Pause de 10ms
@@ -144,9 +158,12 @@ puissanceValeurProd = DoubleVar()
 valeurPuisConsoStr = StringVar()
 valeurPuisProdStr = StringVar()
 moyenneConso = StringVar()
+estimationBatt = StringVar()
+
 valeurPuisConsoStr.set("")
 valeurPuisProdStr.set("")
 moyenneConso.set("")
+estimationBatt.set("")
 
 
 """Widgets"""
@@ -189,6 +206,7 @@ ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', var
 ttk.Label(frameConso, text="Décharge").grid(column=4, row=1, padx=5)
 ttk.Label(frameConso, textvariable=valeurPuisConsoStr).grid(column=4, row=3, padx=5)
 ttk.Label(frameConso, textvariable=moyenneConso).grid(column=2, row=4, columnspan=2, padx=5, pady=5)
+ttk.Label(frameConso, textvariable=estimationBatt).grid(column=3, row=4, columnspan=2, padx=5, pady=5)
 
 
 #Cadre Boutons
