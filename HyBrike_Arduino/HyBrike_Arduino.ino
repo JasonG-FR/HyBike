@@ -4,6 +4,8 @@ long accelerateurValue = 0L;
 long freinValue = 0L;
 const int tauxActu = 1000/30;
 
+int intensiteValue; //Simulation
+
 // the setup function runs once when you press reset or power the board
 void setup() {
   Serial.begin(9600);
@@ -13,20 +15,20 @@ void setup() {
 void loop() {
   accelerateurValue = 0;
   freinValue = 0;
-  for(int i = 0; i < tauxActu; i++) {
+  for (int i = 0; i < tauxActu; i++) {
     accelerateurValue += analogRead(accelerateurSensor);
     freinValue += analogRead(freinSensor);
     delay(1);
   }
   
-  if(accelerateurValue/tauxActu == 1022) {
+  if (accelerateurValue/tauxActu == 1022) {
     accelerateurValue = 1023;
   }
   else {
     accelerateurValue = accelerateurValue/tauxActu;
   }
 
-  if(freinValue/tauxActu == 1022) {
+  if (freinValue/tauxActu == 1022) {
     freinValue = 1023;
   }
   else {
@@ -35,6 +37,13 @@ void loop() {
   
   //Variables de simulation à développer
   int batterieValue = 512;
+  intensiteValue = 512 + (accelerateurValue-freinValue)/2;
+  /*if (intensiteValue<1023) {
+    intensiteValue+=2;
+  }
+  else {
+    intensiteValue = 0;
+  }*/
 
   //Renvoi console sous forme csv (séparateur ;)
   Serial.print(accelerateurValue);
@@ -42,5 +51,7 @@ void loop() {
   Serial.print(freinValue);
   Serial.print(";");
   Serial.print(batterieValue);
+  Serial.print(";");
+  Serial.print(intensiteValue);
   Serial.print("\n");
 }
