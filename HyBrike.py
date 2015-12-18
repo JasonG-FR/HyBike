@@ -27,7 +27,8 @@ Imax = 150.     #Adapter en fonction du capteur (valeur de Imax en A pour 1023 r
 I0 = 512        #Valeur envoyée par le capteur pour I = 0A
 
 """Variables"""
-conso = {"moy":0,"nb":0}
+conso = {"moy":0,"nb":0,"i":0}  #serie de moyenne de consommation
+majMoy = 3                      #Taux d'actualisation des moyennes (1 pour 30fps, 30 pour 1fps)
 
 def updateData(dataTab, data, *args):
     
@@ -66,7 +67,7 @@ def updateData(dataTab, data, *args):
                 puissanceValeurProd.set(0)
                 valeurPuisConsoStr.set("{0:.0f}".format(puissance) + " W")
                 valeurPuisProdStr.set("0 W")
-                moyenneDynamique(conso,puissance)
+                moyenneDynamique(conso,puissance,majMoy)
                 
             elif(data["valIntensite"] < I0):
                 #Charge
@@ -76,7 +77,7 @@ def updateData(dataTab, data, *args):
                 puissanceValeurProd.set(puissance)
                 valeurPuisConsoStr.set("0 W")
                 valeurPuisProdStr.set("{0:.0f}".format(puissance) + " W")
-                moyenneDynamique(conso,puissance*-1)
+                moyenneDynamique(conso,puissance*-1,majMoy)
                 
             else:
                 #Arrêt
@@ -84,7 +85,7 @@ def updateData(dataTab, data, *args):
                 puissanceValeurProd.set(0)
                 valeurPuisConsoStr.set("0 W")
                 valeurPuisProdStr.set("0 W")
-                moyenneDynamique(conso,0)
+                moyenneDynamique(conso,0,majMoy)
             
             moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
         

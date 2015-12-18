@@ -8,20 +8,25 @@
 #
 
 
-def moyenneDynamique(serie,valeur):
+def moyenneDynamique(serie,valeur,drop=1):
     #   Permet d'afficher la moyenne en temps réel sans stocker toutes les valeurs intérmédiaires
     #   (plus rapide et moins d'utilisation mémoire)
     # 
     #   @param : 
-    #       serie contient un dictionnaire au format {"moy":valeur,"nb":valeur}
+    #       serie contient un dictionnaire au format {"moy":valeur,"nb":valeur,"i":valeur}
     #       valeur contient la valeur à ajouter à la moyenne
+    #       drop permet d'indiquer combien de mesures doivent être ignorées (2 indique 1 mesure sur 2)
     # 
     #
     
-    serie["moy"] *= serie["nb"]
-    serie["moy"] += valeur
-    serie["nb"] += 1
-    serie["moy"] /= serie["nb"]
+    if serie["i"] <= 1:
+        serie["moy"] *= serie["nb"]
+        serie["moy"] += valeur
+        serie["nb"] += 1
+        serie["moy"] /= serie["nb"]
+        serie["i"] = drop
+    else:
+        serie["i"] -= 1
     
 
 if __name__ == '__main__':
@@ -39,7 +44,7 @@ if __name__ == '__main__':
     print(moy1)
     
     print("Test de la fonction moyenneDynamique :")
-    serie = {"moy":0,"nb":0}
+    serie = {"moy":0,"nb":0,"i":0}
     for item in liste:
         moyenneDynamique(serie,item)
     print(serie["moy"])
