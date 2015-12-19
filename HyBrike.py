@@ -24,12 +24,12 @@ except serial.serialutil.SerialException:
     exit()
 
 """Paramètres physiques"""
-minVBat = 10.8  #Batterie à 0%
-maxVBat = 13.6  #Batterie à 100%
-capBat = 12     #Capacité en Ah
-Pmax = 1500     #Puissance electrique maximale du moteur
-Imax = 150.     #Adapter en fonction du capteur (valeur de Imax en A pour 1023 renvoyé par le capteur)
-I0 = 512        #Valeur envoyée par le capteur pour I = 0A
+minVBat = 10.8*3    #Batterie à 0%
+maxVBat = 13.6*3    #Batterie à 100%
+capBat = 12         #Capacité en Ah
+Pmax = 1500         #Puissance electrique maximale du moteur
+Imax = 150./3         #Adapter en fonction du capteur (valeur de Imax en A pour 1023 renvoyé par le capteur)
+I0 = 512            #Valeur envoyée par le capteur pour I = 0A
 
 """Variables"""
 conso = {"moy":0,"nb":0,"i":0}  #serie de moyenne de consommation
