@@ -11,6 +11,7 @@ from tkinter import *
 from tkinter import ttk
 from time import sleep
 import serial
+import sys
 
 from decodageArduino import *
 from moyenneDynamique import *
@@ -36,6 +37,9 @@ Vmax = 100          #Vitesse maximale en km/h
 conso = {"moy":0,"nb":0,"i":0}  #serie de moyenne des consommations
 vite = {"moy":0,"nb":0,"i":0}   #serie de moyenne des vitesses
 majMoy = 3                      #Taux d'actualisation des moyennes (1 pour 30fps, 30 pour 1fps)
+
+def quitter(*args):
+    sys.exit()
 
 def updateData(dataTab, data, *args):
     
@@ -106,16 +110,12 @@ def updateData(dataTab, data, *args):
                 moyenneDynamique(conso,0,majMoy)
             
             moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
-            if conso["moy"] > 0.1:
-                lMoyConso.configure(foreground="red")
-            elif conso["moy"] < 0.1:
-                lMoyConso.configure(foreground="green")
-            else:
-                lMoyConso.configure(foreground="black")
             if conso["moy"] > 0:
+                lMoyConso.configure(foreground="red")
                 autonomie = energie/conso["moy"]
                 estimationBatt.set("~ " + formatH(autonomie))
             else:
+                lMoyConso.configure(foreground="green")
                 autonomie = -1
                 estimationBatt.set("N/A")
             
@@ -269,6 +269,6 @@ ttk.Label(Fvit2, textvariable=estimationVitesse).grid(column=2, row=1, padx=25, 
 Fbouton = ttk.Frame(cadre)
 Fbouton.grid(column=1, row=6, columnspan=13)
 ttk.Button(Fbouton, text="Start", command=getData).grid(column=2, row=1, pady=5)
-ttk.Button(Fbouton, text="Quitter", command=fenetre.destroy).grid(column=3, row=1, pady=5)
+ttk.Button(Fbouton, text="Quitter", command=quitter).grid(column=3, row=1, pady=5)
 
 fenetre.mainloop()
