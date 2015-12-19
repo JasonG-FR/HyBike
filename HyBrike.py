@@ -61,6 +61,12 @@ def updateData(dataTab, data, *args):
             Tension = data["valBatt"]*(maxVBat-minVBat)/100.+minVBat
             batterieValeur.set(data["valBatt"])
             valeurBattStr.set(str(data["valBatt"]) + " %")
+            if data["valBatt"] > 30:
+                lbatt.configure(foreground="green")
+            elif data["valBatt"] > 10:
+                lbatt.configure(foreground="orange")
+            else:
+                lbatt.configure(foreground="red")
             voltageBattStr.set("{0:.2f}".format(Tension) + " V")
             
             #Le choix de cet algorithme de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
@@ -100,6 +106,12 @@ def updateData(dataTab, data, *args):
                 moyenneDynamique(conso,0,majMoy)
             
             moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
+            if conso["moy"] > 0.1:
+                lMoyConso.configure(foreground="red")
+            elif conso["moy"] < 0.1:
+                lMoyConso.configure(foreground="green")
+            else:
+                lMoyConso.configure(foreground="black")
             if conso["moy"] > 0:
                 autonomie = energie/conso["moy"]
                 estimationBatt.set("~ " + formatH(autonomie))
@@ -218,7 +230,8 @@ frameBatt = ttk.LabelFrame(cadre, text=' Batterie ', padding="5 5 5 5")
 frameBatt.grid(column=7, row=1, sticky=(N, W, E, S), rowspan = 4, columnspan = 2, padx=5, pady=5)
 
 ttk.Progressbar(frameBatt, orient=VERTICAL, length=120, mode='determinate', variable=batterieValeur, maximum=100).grid(column=1, row=1, rowspan=3, sticky=(W, E), padx=5)
-ttk.Label(frameBatt, textvariable=valeurBattStr).grid(column=2, row=1, padx=5)
+lbatt = ttk.Label(frameBatt, textvariable=valeurBattStr)
+lbatt.grid(column=2, row=1, padx=5)
 ttk.Label(frameBatt, textvariable=voltageBattStr).grid(column=2, row=2, padx=5)
 ttk.Label(frameBatt, textvariable=energieBattStr).grid(column=2, row=3, padx=5)
 
@@ -227,14 +240,15 @@ frameConso = ttk.LabelFrame(cadre, text=' Consommation ', padding="5 5 5 5")
 frameConso.grid(column=9, row=1, sticky=(N, W, E, S), rowspan = 4, columnspan = 4, padx=5, pady=5)
 
 ttk.Label(frameConso, text="Recharge").grid(column=1, row=1, padx=5)
-ttk.Label(frameConso, textvariable=valeurPuisProdStr).grid(column=1, row=3, padx=5)
+ttk.Label(frameConso, textvariable=valeurPuisProdStr, foreground="green").grid(column=1, row=3, padx=5)
 ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=puissanceValeurProd, maximum=Pmax).grid(column=2, row=1, rowspan=3, sticky=(W, E), padx=5)
 ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=puissanceValeurConso, maximum=Pmax).grid(column=3, row=1, rowspan=3, sticky=(W, E), padx=5)
 ttk.Label(frameConso, text="Décharge").grid(column=4, row=1, padx=5)
-ttk.Label(frameConso, textvariable=valeurPuisConsoStr).grid(column=4, row=3, padx=5)
+ttk.Label(frameConso, textvariable=valeurPuisConsoStr, foreground="red").grid(column=4, row=3, padx=5)
 Fmoy = ttk.Frame(frameConso)
 Fmoy.grid(column=1, row=4, columnspan=4)
-ttk.Label(Fmoy, textvariable=moyenneConso).grid(column=1, row=1, padx=5, pady=5)
+lMoyConso = ttk.Label(Fmoy, textvariable=moyenneConso)
+lMoyConso.grid(column=1, row=1, padx=5, pady=5)
 ttk.Label(Fmoy, textvariable=estimationBatt).grid(column=2, row=1, padx=5, pady=5)
 
 #Cadre Vitesse
