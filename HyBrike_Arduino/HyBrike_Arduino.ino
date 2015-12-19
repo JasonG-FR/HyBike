@@ -5,6 +5,7 @@ long freinValue = 0L;
 const int tauxActu = 1000/30;
 
 int intensiteValue; //Simulation
+int vitesseValue; //Simulation
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -38,6 +39,7 @@ void loop() {
   //Variables de simulation à développer
   int batterieValue = 512;
   intensiteValue = 512 + (accelerateurValue-freinValue)/2;
+  vitesseValue = accelerateurValue-freinValue;
   /*if (intensiteValue<1023) {
     intensiteValue+=2;
   }
@@ -53,5 +55,7 @@ void loop() {
   Serial.print(batterieValue);
   Serial.print(";");
   Serial.print(intensiteValue);
+  Serial.print(";");
+  Serial.print(vitesseValue);
   Serial.print("\n");
 }

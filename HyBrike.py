@@ -28,22 +28,25 @@ minVBat = 10.8*3    #Batterie à 0%
 maxVBat = 13.6*3    #Batterie à 100%
 capBat = 12         #Capacité en Ah
 Pmax = 1500         #Puissance electrique maximale du moteur
-Imax = 150./3         #Adapter en fonction du capteur (valeur de Imax en A pour 1023 renvoyé par le capteur)
+Imax = 150./3       #Adapter en fonction du capteur (valeur de Imax en A pour 1023 renvoyé par le capteur)
 I0 = 512            #Valeur envoyée par le capteur pour I = 0A
+Vmax = 100          #Vitesse maximale en km/h
 
 """Variables"""
-conso = {"moy":0,"nb":0,"i":0}  #serie de moyenne de consommation
+conso = {"moy":0,"nb":0,"i":0}  #serie de moyenne des consommations
+vite = {"moy":0,"nb":0,"i":0}   #serie de moyenne des vitesses
 majMoy = 3                      #Taux d'actualisation des moyennes (1 pour 30fps, 30 pour 1fps)
 
 def updateData(dataTab, data, *args):
     
     #Vérifier si le flux est complet, sinon attendre qu'il n'y ait plus d'erreurs
         try:
-            #Format Arduino : acc;frein;batt;intensité
+            #Format Arduino : acc;frein;batt;intensité;vitesse
             data["valAcc"] = int(int(dataTab[0])/1023*100)
             data["valFrein"] = int(int(dataTab[1])/1023*100)
             data["valBatt"] = int(int(dataTab[2])/1023*100)
-            data["valIntensite"] = int(dataTab[3])  
+            data["valIntensite"] = int(dataTab[3])
+            data["valVitesse"] = int(dataTab[4])/1023.*100
         
             """Mise à jour des variables de l'interface"""
             ##Accélérateur
@@ -97,14 +100,23 @@ def updateData(dataTab, data, *args):
                 moyenneDynamique(conso,0,majMoy)
             
             moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
-            try:
+            if conso["moy"] > 0:
                 autonomie = energie/conso["moy"]
-                if autonomie < 0:
-                    estimationBatt.set("N/A")
-                else:
-                    estimationBatt.set("~ " + formatH(autonomie))
-            except ZeroDivisionError:
+                estimationBatt.set("~ " + formatH(autonomie))
+            else:
+                autonomie = -1
                 estimationBatt.set("N/A")
+            
+            ##Vitesse
+            vitesse = data["valVitesse"]*Vmax/100
+            vitesseValeur.set(vitesse)
+            valeurVitesseStr.set("{0:.0f}".format(vitesse) + " km/h   <=>   "+"{0:.1f}".format(vitesse*10/36.) + " m/s")
+            moyenneDynamique(vite,vitesse,majMoy)
+            moyenneVitesse.set("Vitesse moyenne : " + "{0:.1f}".format(vite["moy"]) + " km/h")
+            if autonomie < 0:
+                estimationVitesse.set("Autonomie restante : N/A")
+            else:
+                estimationVitesse.set("Autonomie restante : ~ " + "{0:.0f}".format(vite["moy"]*autonomie) + " km")
             
         
         except ValueError:
@@ -152,6 +164,7 @@ batterieValeur = IntVar()
 valeurBattStr = StringVar()
 voltageBattStr = StringVar()
 energieBattStr = StringVar()
+
 valeurBattStr.set("")
 voltageBattStr.set("")
 energieBattStr.set("")
@@ -168,6 +181,16 @@ valeurPuisConsoStr.set("")
 valeurPuisProdStr.set("")
 moyenneConso.set("")
 estimationBatt.set("")
+
+#Vitesse
+vitesseValeur = DoubleVar()
+valeurVitesseStr = StringVar()
+moyenneVitesse = StringVar()
+estimationVitesse = StringVar()
+
+valeurVitesseStr.set("")
+moyenneVitesse.set("")
+estimationVitesse.set("")
 
 
 """Widgets"""
@@ -214,10 +237,23 @@ Fmoy.grid(column=1, row=4, columnspan=4)
 ttk.Label(Fmoy, textvariable=moyenneConso).grid(column=1, row=1, padx=5, pady=5)
 ttk.Label(Fmoy, textvariable=estimationBatt).grid(column=2, row=1, padx=5, pady=5)
 
+#Cadre Vitesse
+frameVitesse = ttk.LabelFrame(cadre, text=' Vitesse ', padding="5 5 5 5")
+frameVitesse.grid(column=1, row=5, sticky=(N, W, E, S), columnspan = 13, padx=5, pady=5)
+
+Fvit = ttk.Frame(frameVitesse)
+Fvit.grid(column=1, row=1, columnspan=13)
+ttk.Label(Fvit, textvariable=valeurVitesseStr).grid(column=1, row=1, padx=5, pady=5)
+ttk.Progressbar(frameVitesse, orient=HORIZONTAL, length=740, mode='determinate', variable=vitesseValeur, maximum=Vmax).grid(column=1, row=2, columnspan=13, sticky=(W, E), pady=5, padx=5)
+Fvit2 = ttk.Frame(frameVitesse)
+Fvit2.grid(column=1, row=3, columnspan=13)
+ttk.Label(Fvit2, textvariable=moyenneVitesse).grid(column=1, row=1, padx=25, pady=5)
+ttk.Label(Fvit2, textvariable=estimationVitesse).grid(column=2, row=1, padx=25, pady=5)
+
 
 #Cadre Boutons
 Fbouton = ttk.Frame(cadre)
-Fbouton.grid(column=1, row=5, columnspan=13)
+Fbouton.grid(column=1, row=6, columnspan=13)
 ttk.Button(Fbouton, text="Start", command=getData).grid(column=2, row=1, pady=5)
 ttk.Button(Fbouton, text="Quitter", command=fenetre.destroy).grid(column=3, row=1, pady=5)
 
