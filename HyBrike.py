@@ -159,29 +159,23 @@ def getData(*args):
 """Interface"""
 fenetre = Tk()
 fenetre.title("Dashboard")
-fenetre.geometry("840x480")
+fenetre.geometry("800x480")
 
 
 """Variables"""
 #Accélérateur
 accelerateurValeur = IntVar()
 valeurAccStr = StringVar()
-valeurAccStr.set("")
 
 #Frein
 freinValeur = IntVar()
 valeurFreinStr = StringVar()
-valeurFreinStr.set("")
 
 #Batterie
 batterieValeur = IntVar()
 valeurBattStr = StringVar()
 voltageBattStr = StringVar()
 energieBattStr = StringVar()
-
-valeurBattStr.set("")
-voltageBattStr.set("")
-energieBattStr.set("")
 
 #Consommation
 puissanceValeurConso = DoubleVar()
@@ -191,20 +185,11 @@ valeurPuisProdStr = StringVar()
 moyenneConso = StringVar()
 estimationBatt = StringVar()
 
-valeurPuisConsoStr.set("")
-valeurPuisProdStr.set("")
-moyenneConso.set("")
-estimationBatt.set("")
-
 #Vitesse
 vitesseValeur = DoubleVar()
 valeurVitesseStr = StringVar()
 moyenneVitesse = StringVar()
 estimationVitesse = StringVar()
-
-valeurVitesseStr.set("")
-moyenneVitesse.set("")
-estimationVitesse.set("")
 
 
 """Widgets"""
