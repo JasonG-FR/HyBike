@@ -16,8 +16,12 @@ from decodageArduino import *
 from moyenneDynamique import *
 from formatH import *
 
-ser = serial.Serial('/dev/ttyACM0', 9600)
-ser.readline()
+try:
+    ser = serial.Serial('/dev/ttyACM0', 9600)
+    ser.readline()
+except serial.serialutil.SerialException:
+    print("Arduino non connecté!")
+    exit()
 
 """Paramètres physiques"""
 minVBat = 10.8  #Batterie à 0%
