@@ -142,8 +142,11 @@ def updateData(dataTab, data, *args):
 
 def getData(*args):
     
+    if stopAcquisition.get() == True:
+        stopAcquisition.set("False")
+        
     data = {}
-    while(True):
+    while(not stopAcquisition.get()):
         """Lecture des données issues d'Arduino"""
         dataTab = decodageArduino(ser)
         
@@ -155,6 +158,10 @@ def getData(*args):
         except TclError:
             break
 
+def stopData(*args):
+    
+    stopAcquisition.set("True")
+
 
 """Interface"""
 fenetre = Tk()
@@ -163,6 +170,11 @@ fenetre.geometry("800x480")
 
 
 """Variables"""
+
+#Globales
+stopAcquisition = BooleanVar()
+stopAcquisition.set("False")
+
 #Accélérateur
 accelerateurValeur = IntVar()
 valeurAccStr = StringVar()
@@ -256,6 +268,7 @@ ttk.Label(Fvit2, textvariable=estimationVitesse).grid(column=2, row=1, padx=25, 
 Fbouton = ttk.Frame(cadre)
 Fbouton.grid(column=1, row=6, columnspan=13)
 ttk.Button(Fbouton, text="Start", command=getData).grid(column=2, row=1, pady=5)
-ttk.Button(Fbouton, text="Quitter", command=fenetre.destroy).grid(column=3, row=1, pady=5)
+ttk.Button(Fbouton, text="Stop", command=stopData).grid(column=3, row=1, pady=5)
+ttk.Button(Fbouton, text="Quitter", command=fenetre.destroy).grid(column=4, row=1, pady=5)
 
 fenetre.mainloop()
