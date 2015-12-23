@@ -189,7 +189,6 @@ def getData(*args):
         
         try:
             fenetre.update()
-            sleep(1/30.)
         except TclError:
             break
     
