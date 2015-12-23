@@ -48,6 +48,7 @@ void loop() {
   }*/
 
   //Renvoi console sous forme csv (séparateur ;)
+  Serial.flush();
   Serial.print(accelerateurValue);
   Serial.print(";");
   Serial.print(freinValue);

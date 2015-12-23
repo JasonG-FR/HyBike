@@ -15,6 +15,7 @@ import serial
 from decodageArduino import *
 from moyenneDynamique import *
 from formatH import *
+from remiseAZ import *
 
 try:
     ser = serial.Serial('/dev/ttyACM0', 9600)
@@ -47,6 +48,7 @@ def updateData(dataTab, data, *args):
     
     #Vérifier si le flux est complet, sinon attendre qu'il n'y ait plus d'erreurs
         try:
+            """Conversion des données Arduino"""
             #Format Arduino : acc;frein;batt;intensité;vitesse
             data["valAcc"] = int(int(dataTab[0])/1023*100)
             data["valFrein"] = int(int(dataTab[1])/1023*100)
@@ -146,22 +148,34 @@ def getData(*args):
         stopAcquisition.set("False")
         
     data = {}
+    
+    #Flush du tampon d'Arduino
+    ser.flushInput()
+    
     while(not stopAcquisition.get()):
-        """Lecture des données issues d'Arduino"""
+        #Lecture des données issues d'Arduino
         dataTab = decodageArduino(ser)
         
-        """Mise à jour des variables et de l'affichage"""
+        #Mise à jour des variables et de l'affichage
         updateData(dataTab, data)
         
         try:
             fenetre.update()
         except TclError:
             break
+    
+    #remise à zéro des moyennes
+    remiseAZ(conso,vite,moyenneConso,moyenneVitesse)
+    
+    try:
+        fenetre.update()
+    except TclError:
+        exit()
 
 def stopData(*args):
     
     stopAcquisition.set("True")
-
+    
 
 """Interface"""
 fenetre = Tk()
