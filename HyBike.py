@@ -10,12 +10,14 @@
 from tkinter import *
 from tkinter import ttk
 from time import sleep
+from random import randint
 import serial
 
 from decodageArduino import *
 from moyenneDynamique import *
 from formatH import *
 from remiseAZ import *
+from logSession import *
 
 try:
     ser = serial.Serial('/dev/ttyACM0', 9600)
@@ -44,7 +46,7 @@ def colorer(objet,couleur):
     except TclError:
         exit()
 
-def updateData(dataTab, data, *args):
+def updateData(dataTab, data, fichier=False, cpt=0, donnees=0, *args):
     
     #Vérifier si le flux est complet, sinon attendre qu'il n'y ait plus d'erreurs
         try:
@@ -87,8 +89,8 @@ def updateData(dataTab, data, *args):
             if(data["valIntensite"] > I0):
                 #Décharge
                 tauxEch = Imax/(1023-I0)            #Echantillonnage
-                Ipositif = data["valIntensite"]-I0  #On décale le zéro de I0 à 0
-                puissance = Tension*Ipositif*tauxEch
+                Intensite = (data["valIntensite"]-I0)*tauxEch  #On décale le zéro de I0 à 0
+                puissance = Tension*Intensite
                 puissanceValeurConso.set(puissance)
                 puissanceValeurProd.set(0)
                 valeurPuisConsoStr.set("{0:.0f}".format(puissance) + " W")
@@ -98,7 +100,8 @@ def updateData(dataTab, data, *args):
             elif(data["valIntensite"] < I0):
                 #Charge
                 tauxEch = Imax/I0            #Echantillonnage
-                puissance = Tension*(data["valIntensite"]-I0)*tauxEch*-1
+                Intensite = (data["valIntensite"]-I0)*tauxEch
+                puissance = Tension*Intensite*-1
                 puissanceValeurConso.set(0)
                 puissanceValeurProd.set(puissance)
                 valeurPuisConsoStr.set("0 W")
@@ -107,6 +110,7 @@ def updateData(dataTab, data, *args):
                 
             else:
                 #Arrêt
+                Intensite = 0
                 puissanceValeurConso.set(0)
                 puissanceValeurProd.set(0)
                 valeurPuisConsoStr.set("0 W")
@@ -134,7 +138,16 @@ def updateData(dataTab, data, *args):
             else:
                 estimationVitesse.set("Autonomie restante : ~ " + "{0:.0f}".format(vite["moy"]*autonomie) + " km")
             
-        
+            """Mise à jour du log si actif"""
+            if fichier != False:
+                #[tps,acc,frein,ubat,imot,vit]
+                donnees[1] = str(accelerateurValeur.get())
+                donnees[2] = str(freinValeur.get())
+                donnees[3] = "{0:.2f}".format(Tension)
+                donnees[4] = "{0:.2f}".format(Intensite)
+                donnees[5] = "{0:.1f}".format(vitesseValeur.get())
+                logSession(fichier,donnees,cpt)
+            
         except ValueError:
             #Pause de 10ms
             sleep(0.01)
@@ -146,6 +159,18 @@ def getData(*args):
     
     if stopAcquisition.get() == True:
         stopAcquisition.set("False")
+    
+    #ouverture log si actif    
+    if logON.get():
+        seed = ""
+        for i in range(15):
+            seed += str(randint(0,9))
+            
+        nom = "logs/temp-" + seed + ".csv"
+        fichier = open(nom,"w")
+        cpt = [-1]
+        #[tps,acc,frein,ubat,imot,vit]
+        donnees = ["0","0","0","0","0","0"]
         
     data = {}
     
@@ -157,12 +182,20 @@ def getData(*args):
         dataTab = decodageArduino(ser)
         
         #Mise à jour des variables et de l'affichage
-        updateData(dataTab, data)
+        if logON.get():
+            updateData(dataTab, data, fichier, cpt, donnees)
+        else:
+            updateData(dataTab, data)
         
         try:
             fenetre.update()
+            sleep(1/30.)
         except TclError:
             break
+    
+    #fermeture log si actif
+    if logON.get():
+        fichier.close()
     
     #remise à zéro des moyennes
     remiseAZ(conso,vite,moyenneConso,moyenneVitesse)
@@ -188,6 +221,8 @@ fenetre.geometry("800x480")
 #Globales
 stopAcquisition = BooleanVar()
 stopAcquisition.set("False")
+logON = BooleanVar()
+logON.set("True")
 
 #Accélérateur
 accelerateurValeur = IntVar()

@@ -20,7 +20,7 @@ def logSession(fichier,datas,compteur,tempo=1):
     txTrans = 1/30.     #temps de cycle d'envoi des données par Arduino en secondes
     
     #Si on est au début du fichier (caractère 0)
-    if compteur >= int(tempo/txTrans) or compteur == -1:
+    if compteur[0] >= int(tempo/txTrans) or compteur[0] == -1:
 
         if fichier.tell() == 0:
             #On écrit l'entête
@@ -34,19 +34,20 @@ def logSession(fichier,datas,compteur,tempo=1):
         fichier.write(ligne[:len(ligne) - 1] + "\n")    #On enlève le dernier ";"
         
         datas[0] = str(int(datas[0]) + tempo)
-        compteur = 0
+        compteur[0] = 0
     
-    compteur += 1
+    compteur[0] += 1
 
 if __name__ == '__main__':
     
+    from time import sleep
     import os
     
     f = open("test.csv","w")
     donnees =  ["0","50","50","12","5","45"]
-    cpt = -1
+    cpt = [-1]
     
-    for i in range(25):
+    for i in range(25*30):
         logSession(f,donnees,cpt)
     
     f.close()
