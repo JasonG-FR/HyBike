@@ -46,7 +46,7 @@ def colorer(objet,couleur):
     except TclError:
         exit()
 
-def updateData(dataTab, data, fichier=False, cpt=0, donnees=0, *args):
+def updateData(dataTab, data, fichier=False, tpsConsigne=0, donnees=0, *args):
     
     #Vérifier si le flux est complet, sinon attendre qu'il n'y ait plus d'erreurs
         try:
@@ -146,7 +146,7 @@ def updateData(dataTab, data, fichier=False, cpt=0, donnees=0, *args):
                 donnees[3] = "{0:.2f}".format(Tension)
                 donnees[4] = "{0:.2f}".format(Intensite)
                 donnees[5] = "{0:.1f}".format(vitesseValeur.get())
-                logSession(fichier,donnees,cpt)
+                logSession(fichier,donnees,tpsConsigne)
             
         except ValueError:
             #Pause de 10ms
@@ -168,11 +168,11 @@ def getData(*args):
             
         nom = "logs/temp-" + seed + ".csv"
         fichier = open(nom,"w")
-        cpt = [-1]
         #[tps,acc,frein,ubat,imot,vit]
         donnees = ["0","0","0","0","0","0"]
         
     data = {}
+    tpsConsigne = [0]
     
     #Flush du tampon d'Arduino
     ser.flushInput()
@@ -183,7 +183,7 @@ def getData(*args):
         
         #Mise à jour des variables et de l'affichage
         if logON.get():
-            updateData(dataTab, data, fichier, cpt, donnees)
+            updateData(dataTab, data, fichier, tpsConsigne, donnees)
         else:
             updateData(dataTab, data)
         
