@@ -28,12 +28,14 @@ def remiseAZ(*args):
         
         #Si c'est une variable d'affichage
         elif str(type(arg)) == "<class 'tkinter.StringVar'>":
-            #Si le dernier caractère est W il s'agit de la puissance moyenne
-            if arg.get()[len(arg.get())-1] == "W":
-                arg.set("0 W")
-            #Sinon si le dernier caractère est h alors il s'agit de la vitesse moyenne
-            elif arg.get()[len(arg.get())-1] == "h":
-                arg.set("Vitesse moyenne : 0.0 km/h")
+            #Si l'argument n'est pas vide
+            if arg.get() != "":
+                #Si le dernier caractère est W il s'agit de la puissance moyenne
+                if arg.get()[len(arg.get())-1] == "W":
+                    arg.set("0 W")
+                #Sinon si le dernier caractère est h alors il s'agit de la vitesse moyenne
+                elif arg.get()[len(arg.get())-1] == "h":
+                    arg.set("Vitesse moyenne : 0.0 km/h")
 
 
 if __name__ == '__main__':
