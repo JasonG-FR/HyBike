@@ -158,34 +158,38 @@ def updateData(dataTab, data, fichier=False, tpsConsigne=0, tempo=1, donnees=0, 
 
 def getData(*args):
     
-    if stopAcquisition.get() == True:
-        stopAcquisition.set("False")
-    
-    #ouverture log si actif    
-    if logON.get():
-        seed = ""
-        for i in range(15):
-            seed += str(randint(0,9))
-            
-        nom = "logs/temp-" + seed + ".csv"
-        fichier = open(nom,"w")
-        #[tps,acc,frein,ubat,imot,vit]
-        donnees = ["0","0","0","0","0","0"]
-        
     data = {}
     tpsConsigne = [0]
+    fichier = 0
     
     #Flush du tampon d'Arduino
     ser.flushInput()
     
-    while(not stopAcquisition.get()):
+    while(True):
         #Lecture des données issues d'Arduino
         dataTab = decodageArduino(ser)
         
         #Mise à jour des variables et de l'affichage
         if logON.get():
+            #On crée le fichier s'il n'existe pas
+            if fichier == 0:
+                seed = ""
+                for i in range(15):
+                    seed += str(randint(0,9))
+            
+                nom = "logs/temp-" + seed + ".csv"
+                fichier = open(nom,"w")
+                #[tps,acc,frein,ubat,imot,vit]
+                donnees = ["0","0","0","0","0","0"]
+        
             updateData(dataTab, data, fichier, tpsConsigne, tempo, donnees)
         else:
+            #On ferme le fichier s'il est ouvert
+            if fichier != 0:
+                fichier.close()
+                #---> On pourrait demander un nom de fichier et le renommer (sauf si implémentation d'une horloge matérielle) <---
+                fichier = 0
+            
             updateData(dataTab, data)
         
         try:
@@ -193,22 +197,20 @@ def getData(*args):
         except TclError:
             break
     
-    #fermeture log si actif
-    if logON.get():
-        fichier.close()
-    
-    #remise à zéro des moyennes
-    remiseAZ(conso,vite,moyenneConso,moyenneVitesse)
-    
     try:
         fenetre.update()
     except TclError:
         exit()
 
-def stopData(*args):
+def stopLog(*args):
+    logON.set("False")
     
-    stopAcquisition.set("True")
-    
+def startLog(*args):
+    logON.set("True")
+
+def RAZ(*args):
+    remiseAZ(conso,vite,moyenneConso,moyenneVitesse)
+
 
 """Interface"""
 fenetre = Tk()
@@ -219,10 +221,8 @@ fenetre.geometry("800x480")
 """Variables"""
 
 #Globales
-stopAcquisition = BooleanVar()
-stopAcquisition.set("False")
 logON = BooleanVar()
-logON.set("True")
+logON.set("False")
 
 #Accélérateur
 accelerateurValeur = IntVar()
@@ -316,8 +316,10 @@ ttk.Label(Fvit2, textvariable=estimationVitesse).grid(column=2, row=1, padx=25, 
 #Cadre Boutons
 Fbouton = ttk.Frame(cadre)
 Fbouton.grid(column=1, row=6, columnspan=13)
-ttk.Button(Fbouton, text="Start", command=getData).grid(column=2, row=1, pady=5)
-ttk.Button(Fbouton, text="Stop", command=stopData).grid(column=3, row=1, pady=5)
-ttk.Button(Fbouton, text="Quitter", command=fenetre.destroy).grid(column=4, row=1, pady=5)
+ttk.Button(Fbouton, text="Contact", command=getData).grid(column=2, row=1, pady=5)
+ttk.Button(Fbouton, text="Start", command=startLog).grid(column=3, row=1, pady=5)
+ttk.Button(Fbouton, text="Stop", command=stopLog).grid(column=4, row=1, pady=5)
+ttk.Button(Fbouton, text="RAZ", command=RAZ).grid(column=5, row=1, pady=5)
+ttk.Button(Fbouton, text="Quitter", command=fenetre.destroy).grid(column=6, row=1, pady=5)
 
 fenetre.mainloop()
