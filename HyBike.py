@@ -14,9 +14,8 @@ from random import randint
 import serial
 
 from decodageArduino import *
-from moyenneDynamique import *
+from moyennes import *
 from formatH import *
-from remiseAZ import *
 from logSession import *
 from configuration import *
 
