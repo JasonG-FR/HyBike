@@ -39,6 +39,7 @@ Vmax = 100          #Vitesse maximale en km/h
 conso = {"moy":0,"nb":0,"i":0}  #serie de moyenne des consommations
 vite = {"moy":0,"nb":0,"i":0}   #serie de moyenne des vitesses
 majMoy = 3                      #Taux d'actualisation des moyennes (1 pour 30fps, 30 pour 1fps)
+tempo = 0.5                       #Temporisation pour les logs (en s)
 
 def colorer(objet,couleur):
     try:
@@ -46,7 +47,7 @@ def colorer(objet,couleur):
     except TclError:
         exit()
 
-def updateData(dataTab, data, fichier=False, tpsConsigne=0, donnees=0, *args):
+def updateData(dataTab, data, fichier=False, tpsConsigne=0, tempo=1, donnees=0, *args):
     
     #Vérifier si le flux est complet, sinon attendre qu'il n'y ait plus d'erreurs
         try:
@@ -146,7 +147,7 @@ def updateData(dataTab, data, fichier=False, tpsConsigne=0, donnees=0, *args):
                 donnees[3] = "{0:.2f}".format(Tension)
                 donnees[4] = "{0:.2f}".format(Intensite)
                 donnees[5] = "{0:.1f}".format(vitesseValeur.get())
-                logSession(fichier,donnees,tpsConsigne,1)
+                logSession(fichier,donnees,tpsConsigne,tempo)
             
         except ValueError:
             #Pause de 10ms
@@ -183,7 +184,7 @@ def getData(*args):
         
         #Mise à jour des variables et de l'affichage
         if logON.get():
-            updateData(dataTab, data, fichier, tpsConsigne, donnees)
+            updateData(dataTab, data, fichier, tpsConsigne, tempo, donnees)
         else:
             updateData(dataTab, data)
         
