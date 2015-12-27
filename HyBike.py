@@ -316,10 +316,10 @@ ttk.Label(Fvit2, textvariable=estimationVitesse).grid(column=2, row=1, padx=25, 
 #Cadre Boutons
 Fbouton = ttk.Frame(cadre)
 Fbouton.grid(column=1, row=6, columnspan=13)
-ttk.Button(Fbouton, text="Contact", command=getData).grid(column=2, row=1, pady=5)
-ttk.Button(Fbouton, text="Start", command=startLog).grid(column=3, row=1, pady=5)
-ttk.Button(Fbouton, text="Stop", command=stopLog).grid(column=4, row=1, pady=5)
-ttk.Button(Fbouton, text="RAZ", command=RAZ).grid(column=5, row=1, pady=5)
-ttk.Button(Fbouton, text="Quitter", command=fenetre.destroy).grid(column=6, row=1, pady=5)
+ttk.Button(Fbouton, text="Start", command=startLog).grid(column=2, row=1, pady=5)
+ttk.Button(Fbouton, text="Stop", command=stopLog).grid(column=3, row=1, pady=5)
+ttk.Button(Fbouton, text="RAZ", command=RAZ).grid(column=4, row=1, pady=5)
+ttk.Button(Fbouton, text="Quitter", command=fenetre.destroy).grid(column=5, row=1, pady=5)
 
+fenetre.after(0, getData)   #Démarre l'affichage des données dès le lancement de la fenêtre
 fenetre.mainloop()
