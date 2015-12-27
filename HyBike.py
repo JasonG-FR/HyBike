@@ -18,6 +18,7 @@ from moyenneDynamique import *
 from formatH import *
 from remiseAZ import *
 from logSession import *
+from configuration import *
 
 try:
     ser = serial.Serial('/dev/ttyACM0', 9600)
@@ -26,20 +27,12 @@ except serial.serialutil.SerialException:
     print("Arduino non connecté!")
     exit()
 
-"""Paramètres physiques"""
-minVBat = 10.8*3    #Batterie à 0%
-maxVBat = 13.6*3    #Batterie à 100%
-capBat = 12         #Capacité en Ah
-Pmax = 1500         #Puissance electrique maximale du moteur
-Imax = 150./3       #Adapter en fonction du capteur (valeur de Imax en A pour 1023 renvoyé par le capteur)
-I0 = 512            #Valeur envoyée par le capteur pour I = 0A
-Vmax = 100          #Vitesse maximale en km/h
+"""Chargement des paramètres"""
+params = lireConf()
 
-"""Variables"""
+"""Définition des variables"""
 conso = {"moy":0,"nb":0,"i":0}  #serie de moyenne des consommations
 vite = {"moy":0,"nb":0,"i":0}   #serie de moyenne des vitesses
-majMoy = 3                      #Taux d'actualisation des moyennes (1 pour 30fps, 30 pour 1fps)
-tempo = 0.5                       #Temporisation pour les logs (en s)
 
 def colorer(objet,couleur):
     try:
@@ -69,7 +62,7 @@ def updateData(dataTab, data, fichier=False, tpsConsigne=0, tempo=1, donnees=0, 
             valeurFreinStr.set(str(data["valFrein"]) + " %")
         
             ##Batterie
-            Tension = data["valBatt"]*(maxVBat-minVBat)/100.+minVBat
+            Tension = data["valBatt"]*(params["maxVBat"]-params["minVBat"])/100.+params["minVBat"]
             batterieValeur.set(data["valBatt"])
             valeurBattStr.set(str(data["valBatt"]) + " %")
             if data["valBatt"] > 30:
@@ -81,33 +74,33 @@ def updateData(dataTab, data, fichier=False, tpsConsigne=0, tempo=1, donnees=0, 
             voltageBattStr.set("{0:.2f}".format(Tension) + " V")
             
             #Le choix de cet algorithme de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
-            energie = capBat*maxVBat*data["valBatt"]/100
+            energie = params["capBat"]*params["maxVBat"]*data["valBatt"]/100
             
             energieBattStr.set("{0:.2f}".format(energie) + " Wh")
             
         
             ##Consommation
-            if(data["valIntensite"] > I0):
+            if(data["valIntensite"] > params["I0"]):
                 #Décharge
-                tauxEch = Imax/(1023-I0)            #Echantillonnage
-                Intensite = (data["valIntensite"]-I0)*tauxEch  #On décale le zéro de I0 à 0
+                tauxEch = params["Imax"]/(1023-params["I0"])             #Echantillonnage
+                Intensite = (data["valIntensite"]-params["I0"])*tauxEch  #On décale le zéro de I0 à 0
                 puissance = Tension*Intensite
                 puissanceValeurConso.set(puissance)
                 puissanceValeurProd.set(0)
                 valeurPuisConsoStr.set("{0:.0f}".format(puissance) + " W")
                 valeurPuisProdStr.set("0 W")
-                moyenneDynamique(conso,puissance,majMoy)
+                moyenneDynamique(conso,puissance,params["majMoy"])
                 
-            elif(data["valIntensite"] < I0):
+            elif(data["valIntensite"] < params["I0"]):
                 #Charge
-                tauxEch = Imax/I0            #Echantillonnage
-                Intensite = (data["valIntensite"]-I0)*tauxEch
+                tauxEch = params["Imax"]/params["I0"]            #Echantillonnage
+                Intensite = (data["valIntensite"]-params["I0"])*tauxEch
                 puissance = Tension*Intensite*-1
                 puissanceValeurConso.set(0)
                 puissanceValeurProd.set(puissance)
                 valeurPuisConsoStr.set("0 W")
                 valeurPuisProdStr.set("{0:.0f}".format(puissance) + " W")
-                moyenneDynamique(conso,puissance*-1,majMoy)
+                moyenneDynamique(conso,puissance*-1,params["majMoy"])
                 
             else:
                 #Arrêt
@@ -116,7 +109,7 @@ def updateData(dataTab, data, fichier=False, tpsConsigne=0, tempo=1, donnees=0, 
                 puissanceValeurProd.set(0)
                 valeurPuisConsoStr.set("0 W")
                 valeurPuisProdStr.set("0 W")
-                moyenneDynamique(conso,0,majMoy)
+                moyenneDynamique(conso,0,params["majMoy"])
             
             moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
             if conso["moy"] > 0:
@@ -129,10 +122,10 @@ def updateData(dataTab, data, fichier=False, tpsConsigne=0, tempo=1, donnees=0, 
                 estimationBatt.set("N/A")
             
             ##Vitesse
-            vitesse = data["valVitesse"]*Vmax/100
+            vitesse = data["valVitesse"]*params["Vmax"]/100
             vitesseValeur.set(vitesse)
             valeurVitesseStr.set("{0:.0f}".format(vitesse) + " km/h   <=>   "+"{0:.1f}".format(vitesse*10/36.) + " m/s")
-            moyenneDynamique(vite,vitesse,majMoy)
+            moyenneDynamique(vite,vitesse,params["majMoy"])
             moyenneVitesse.set("Vitesse moyenne : " + "{0:.1f}".format(vite["moy"]) + " km/h")
             if autonomie < 0:
                 estimationVitesse.set("Autonomie restante : N/A")
@@ -182,7 +175,7 @@ def getData(*args):
                 #[tps,acc,frein,ubat,imot,vit]
                 donnees = ["0","0","0","0","0","0"]
         
-            updateData(dataTab, data, fichier, tpsConsigne, tempo, donnees)
+            updateData(dataTab, data, fichier, tpsConsigne, params["tempo"], donnees)
         else:
             #On ferme le fichier s'il est ouvert
             if fichier != 0:
@@ -289,8 +282,8 @@ frameConso.grid(column=9, row=1, sticky=(N, W, E, S), rowspan = 4, columnspan = 
 
 ttk.Label(frameConso, text="Recharge").grid(column=1, row=1, padx=5)
 ttk.Label(frameConso, textvariable=valeurPuisProdStr, foreground="green").grid(column=1, row=3, padx=5)
-ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=puissanceValeurProd, maximum=Pmax).grid(column=2, row=1, rowspan=3, sticky=(W, E), padx=5)
-ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=puissanceValeurConso, maximum=Pmax).grid(column=3, row=1, rowspan=3, sticky=(W, E), padx=5)
+ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=puissanceValeurProd, maximum=params["Pmax"]).grid(column=2, row=1, rowspan=3, sticky=(W, E), padx=5)
+ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=puissanceValeurConso, maximum=params["Pmax"]).grid(column=3, row=1, rowspan=3, sticky=(W, E), padx=5)
 ttk.Label(frameConso, text="Décharge").grid(column=4, row=1, padx=5)
 ttk.Label(frameConso, textvariable=valeurPuisConsoStr, foreground="red").grid(column=4, row=3, padx=5)
 Fmoy = ttk.Frame(frameConso)
@@ -306,7 +299,7 @@ frameVitesse.grid(column=1, row=5, sticky=(N, W, E, S), columnspan = 13, padx=5,
 Fvit = ttk.Frame(frameVitesse)
 Fvit.grid(column=1, row=1, columnspan=13)
 ttk.Label(Fvit, textvariable=valeurVitesseStr).grid(column=1, row=1, padx=5, pady=5)
-ttk.Progressbar(frameVitesse, orient=HORIZONTAL, length=740, mode='determinate', variable=vitesseValeur, maximum=Vmax).grid(column=1, row=2, columnspan=13, sticky=(W, E), pady=5, padx=5)
+ttk.Progressbar(frameVitesse, orient=HORIZONTAL, length=740, mode='determinate', variable=vitesseValeur, maximum=params["Vmax"]).grid(column=1, row=2, columnspan=13, sticky=(W, E), pady=5, padx=5)
 Fvit2 = ttk.Frame(frameVitesse)
 Fvit2.grid(column=1, row=3, columnspan=13)
 ttk.Label(Fvit2, textvariable=moyenneVitesse).grid(column=1, row=1, padx=25, pady=5)
