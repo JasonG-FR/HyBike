@@ -146,7 +146,7 @@ def updateData(dataTab, data, fichier=False, tpsConsigne=0, donnees=0, *args):
                 donnees[3] = "{0:.2f}".format(Tension)
                 donnees[4] = "{0:.2f}".format(Intensite)
                 donnees[5] = "{0:.1f}".format(vitesseValeur.get())
-                logSession(fichier,donnees,tpsConsigne)
+                logSession(fichier,donnees,tpsConsigne,1)
             
         except ValueError:
             #Pause de 10ms

@@ -39,7 +39,11 @@ def logSession(fichier,datas,tempsConsigne,tempo=1):
         
         fichier.write(ligne[:len(ligne) - 1] + "\n")    #On enlève le dernier ";"
         
-        datas[0] = str(int(datas[0]) + tempo)
+        if tempo%1 != 0:
+            #Tempo non entière
+            datas[0] = "{0:.2f}".format(float(datas[0]) + tempo)
+        else:
+            datas[0] = str(int(datas[0]) + tempo)
 
 if __name__ == '__main__':
     
@@ -51,7 +55,7 @@ if __name__ == '__main__':
     tps = [0]
     
     for i in range(25*30):
-        logSession(f,donnees,tps)
+        logSession(f,donnees,tps,1)
         sleep(1/30.)
     
     f.close()
