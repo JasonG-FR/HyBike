@@ -8,6 +8,28 @@
 #
 
 import time
+import subprocess
+
+def nomLog():
+    #   Permet de choisir un nom pour le fichier log
+    # 
+    #   @return : 
+    #       nom : nom de ficher choisi au format : log-000000.csv
+    #
+    
+    liste = subprocess.check_output(['ls','logs/'])     #Format renvoyé : b'fichier1\nfichier2\n'
+    liste = liste.decode("utf-8")
+    if liste == "":
+        return "logs/log-000000.csv"
+    
+    liste = liste.split("\n")
+    dernier = liste[len(liste)-2]
+    numero = str(int(dernier[4:10])+1)
+    while len(numero) < 6:
+        numero = "0" + numero
+    return "logs/log-" + numero + ".csv"
+    
+    
 
 def logSession(fichier,datas,tempsConsigne,tempo=1):
     #   Permet d'enregistrer les données reçue par Arduino dans un fichier csv

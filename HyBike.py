@@ -36,108 +36,107 @@ def HyBike(changeParam):
     vite = {"moy":0,"nb":0,"i":0}   #serie de moyenne des vitesses
 
     def updateData(dataTab, data, fichier=False, tpsConsigne=0, tempo=1, donnees=0, *args):
-    
         #Vérifier si le flux est complet, sinon attendre qu'il n'y ait plus d'erreurs
-            try:
-                """Conversion des données Arduino"""
-                convArduino(dataTab, data)
+        try:
+            """Conversion des données Arduino"""
+            convArduino(dataTab, data)
+    
+            """Mise à jour des variables de l'interface"""
+            ##Accélérateur
+            accelerateurValeur.set(data["valAcc"])
+            valeurAccStr.set(str(data["valAcc"]) + " %")
+    
+            ##Frein
+            freinValeur.set(data["valFrein"])
+            valeurFreinStr.set(str(data["valFrein"]) + " %")
+    
+            ##Batterie
+            Tension = data["valBatt"]*(params["maxVBat"]-params["minVBat"])/100.+params["minVBat"]
+            batterieValeur.set(data["valBatt"])
+            valeurBattStr.set(str(data["valBatt"]) + " %")
+            if data["valBatt"] > 30:
+                colorer(lbatt,"green")
+            elif data["valBatt"] > 10:
+                colorer(lbatt,"orange")
+            else:
+                colorer(lbatt,"red")
+            voltageBattStr.set("{0:.2f}".format(Tension) + " V")
         
-                """Mise à jour des variables de l'interface"""
-                ##Accélérateur
-                accelerateurValeur.set(data["valAcc"])
-                valeurAccStr.set(str(data["valAcc"]) + " %")
+            #Le choix de cet algorithme de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
+            energie = params["capBat"]*params["maxVBat"]*data["valBatt"]/100
         
-                ##Frein
-                freinValeur.set(data["valFrein"])
-                valeurFreinStr.set(str(data["valFrein"]) + " %")
+            energieBattStr.set("{0:.2f}".format(energie) + " Wh")
         
-                ##Batterie
-                Tension = data["valBatt"]*(params["maxVBat"]-params["minVBat"])/100.+params["minVBat"]
-                batterieValeur.set(data["valBatt"])
-                valeurBattStr.set(str(data["valBatt"]) + " %")
-                if data["valBatt"] > 30:
-                    colorer(lbatt,"green")
-                elif data["valBatt"] > 10:
-                    colorer(lbatt,"orange")
-                else:
-                    colorer(lbatt,"red")
-                voltageBattStr.set("{0:.2f}".format(Tension) + " V")
+    
+            ##Consommation
+            if(data["valIntensite"] > params["I0"]):
+                #Décharge
+                tauxEch = params["Imax"]/(1023-params["I0"])             #Echantillonnage
+                Intensite = (data["valIntensite"]-params["I0"])*tauxEch  #On décale le zéro de I0 à 0
+                puissance = Tension*Intensite
+                puissanceValeurConso.set(puissance)
+                puissanceValeurProd.set(0)
+                valeurPuisConsoStr.set("{0:.0f}".format(puissance) + " W")
+                valeurPuisProdStr.set("0 W")
+                moyenneDynamique(conso,puissance,params["majMoy"])
             
-                #Le choix de cet algorithme de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
-                energie = params["capBat"]*params["maxVBat"]*data["valBatt"]/100
+            elif(data["valIntensite"] < params["I0"]):
+                #Charge
+                tauxEch = params["Imax"]/params["I0"]            #Echantillonnage
+                Intensite = (data["valIntensite"]-params["I0"])*tauxEch
+                puissance = Tension*Intensite*-1
+                puissanceValeurConso.set(0)
+                puissanceValeurProd.set(puissance)
+                valeurPuisConsoStr.set("0 W")
+                valeurPuisProdStr.set("{0:.0f}".format(puissance) + " W")
+                moyenneDynamique(conso,puissance*-1,params["majMoy"])
             
-                energieBattStr.set("{0:.2f}".format(energie) + " Wh")
-            
+            else:
+                #Arrêt
+                Intensite = 0
+                puissanceValeurConso.set(0)
+                puissanceValeurProd.set(0)
+                valeurPuisConsoStr.set("0 W")
+                valeurPuisProdStr.set("0 W")
+                moyenneDynamique(conso,0,params["majMoy"])
         
-                ##Consommation
-                if(data["valIntensite"] > params["I0"]):
-                    #Décharge
-                    tauxEch = params["Imax"]/(1023-params["I0"])             #Echantillonnage
-                    Intensite = (data["valIntensite"]-params["I0"])*tauxEch  #On décale le zéro de I0 à 0
-                    puissance = Tension*Intensite
-                    puissanceValeurConso.set(puissance)
-                    puissanceValeurProd.set(0)
-                    valeurPuisConsoStr.set("{0:.0f}".format(puissance) + " W")
-                    valeurPuisProdStr.set("0 W")
-                    moyenneDynamique(conso,puissance,params["majMoy"])
-                
-                elif(data["valIntensite"] < params["I0"]):
-                    #Charge
-                    tauxEch = params["Imax"]/params["I0"]            #Echantillonnage
-                    Intensite = (data["valIntensite"]-params["I0"])*tauxEch
-                    puissance = Tension*Intensite*-1
-                    puissanceValeurConso.set(0)
-                    puissanceValeurProd.set(puissance)
-                    valeurPuisConsoStr.set("0 W")
-                    valeurPuisProdStr.set("{0:.0f}".format(puissance) + " W")
-                    moyenneDynamique(conso,puissance*-1,params["majMoy"])
-                
-                else:
-                    #Arrêt
-                    Intensite = 0
-                    puissanceValeurConso.set(0)
-                    puissanceValeurProd.set(0)
-                    valeurPuisConsoStr.set("0 W")
-                    valeurPuisProdStr.set("0 W")
-                    moyenneDynamique(conso,0,params["majMoy"])
+            moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
+            if conso["moy"] > 0:
+                colorer(lMoyConso,"red")
+                autonomie = energie/conso["moy"]
+                estimationBatt.set("~ " + formatH(autonomie))
+            else:
+                colorer(lMoyConso,"green")
+                autonomie = -1
+                estimationBatt.set("N/A")
+        
+            ##Vitesse
+            vitesse = data["valVitesse"]*params["Vmax"]/100
+            vitesseValeur.set(vitesse)
+            valeurVitesseStr.set("{0:.0f}".format(vitesse) + " km/h   <=>   "+"{0:.1f}".format(vitesse*10/36.) + " m/s")
+            moyenneDynamique(vite,vitesse,params["majMoy"])
+            moyenneVitesse.set("Vitesse moyenne : " + "{0:.1f}".format(vite["moy"]) + " km/h")
+            if autonomie < 0:
+                estimationVitesse.set("Autonomie restante : N/A")
+            else:
+                estimationVitesse.set("Autonomie restante : ~ " + "{0:.0f}".format(vite["moy"]*autonomie) + " km")
             
-                moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
-                if conso["moy"] > 0:
-                    colorer(lMoyConso,"red")
-                    autonomie = energie/conso["moy"]
-                    estimationBatt.set("~ " + formatH(autonomie))
-                else:
-                    colorer(lMoyConso,"green")
-                    autonomie = -1
-                    estimationBatt.set("N/A")
+            """Mise à jour du log si actif"""
+            if fichier != False:
+                #[tps,acc,frein,ubat,imot,vit]
+                donnees[1] = str(accelerateurValeur.get())
+                donnees[2] = str(freinValeur.get())
+                donnees[3] = "{0:.2f}".format(Tension)
+                donnees[4] = "{0:.2f}".format(Intensite)
+                donnees[5] = "{0:.1f}".format(vitesseValeur.get())
+                logSession(fichier,donnees,tpsConsigne,tempo)
             
-                ##Vitesse
-                vitesse = data["valVitesse"]*params["Vmax"]/100
-                vitesseValeur.set(vitesse)
-                valeurVitesseStr.set("{0:.0f}".format(vitesse) + " km/h   <=>   "+"{0:.1f}".format(vitesse*10/36.) + " m/s")
-                moyenneDynamique(vite,vitesse,params["majMoy"])
-                moyenneVitesse.set("Vitesse moyenne : " + "{0:.1f}".format(vite["moy"]) + " km/h")
-                if autonomie < 0:
-                    estimationVitesse.set("Autonomie restante : N/A")
-                else:
-                    estimationVitesse.set("Autonomie restante : ~ " + "{0:.0f}".format(vite["moy"]*autonomie) + " km")
-                
-                """Mise à jour du log si actif"""
-                if fichier != False:
-                    #[tps,acc,frein,ubat,imot,vit]
-                    donnees[1] = str(accelerateurValeur.get())
-                    donnees[2] = str(freinValeur.get())
-                    donnees[3] = "{0:.2f}".format(Tension)
-                    donnees[4] = "{0:.2f}".format(Intensite)
-                    donnees[5] = "{0:.1f}".format(vitesseValeur.get())
-                    logSession(fichier,donnees,tpsConsigne,tempo)
-                
-            except ValueError:
-                #Pause de 10ms
-                sleep(0.01)
-            except IndexError:
-                #Pause de 10ms
-                sleep(0.01)
+        except ValueError:
+            #Pause de 10ms
+            sleep(0.01)
+        except IndexError:
+            #Pause de 10ms
+            sleep(0.01)
 
     def getData(*args):
     
@@ -156,12 +155,8 @@ def HyBike(changeParam):
             if logON.get():
                 #On crée le fichier s'il n'existe pas
                 if fichier == 0:
-                    seed = ""
-                    for i in range(15):
-                        seed += str(randint(0,9))
-            
-                    nom = "logs/temp-" + seed + ".csv"
-                    fichier = open(nom,"w")
+                    
+                    fichier = open(nomLog(),"w")
                     #[tps,acc,frein,ubat,imot,vit]
                     donnees = ["0","0","0","0","0","0"]
         
@@ -170,7 +165,6 @@ def HyBike(changeParam):
                 #On ferme le fichier s'il est ouvert
                 if fichier != 0:
                     fichier.close()
-                    #---> On pourrait demander un nom de fichier et le renommer (sauf si implémentation d'une horloge matérielle) <---
                     fichier = 0
             
                 updateData(dataTab, data)
