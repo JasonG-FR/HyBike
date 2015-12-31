@@ -113,11 +113,12 @@ def interfaceParametres():
     ttk.Button(frameBouton, text="Valider", command=majParam).grid(column=1, row=1, pady=5)
     ttk.Button(frameBouton, text="Réinitialiser", command=razParam).grid(column=2, row=1, pady=5)
     
-    
+    """if debug:
+        fenetre.mainloop()
+        return lireConf()"""
     fenetre.mainloop()
     
-    return lireConf()
 
 if __name__ == '__main__':
     
-    print(interfaceParametres())
+    interfaceParametres()
