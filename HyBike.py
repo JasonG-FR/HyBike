@@ -16,7 +16,7 @@ import serial
 from fonctionsArduino import *
 from moyennes import *
 from formatH import *
-from logSession import *
+from fonctionsLogs import *
 from configuration import *
 from interfaceParametres import *
 
