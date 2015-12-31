@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  logSession.py
+#  fonctionsLogs.py
 #  
 #  Copyright 2015 Jason Gombert <jason.gombert@gmail.com>
 #  
