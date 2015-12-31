@@ -13,7 +13,7 @@ from time import sleep
 from random import randint
 import serial
 
-from decodageArduino import *
+from fonctionsArduino import *
 from moyennes import *
 from formatH import *
 from logSession import *
