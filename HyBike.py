@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  HyBrike.py
+#  HyBike.py
 #  
 #  Copyright 2015 Jason Gombert <jason.gombert@gmail.com>
 #
