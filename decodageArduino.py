@@ -19,3 +19,11 @@ def decodageArduino(ser):
         
     """Séparation des variables"""
     return dataRaw.split(";")
+
+def convArduino(dataTab, data):
+    #Format Arduino : acc;frein;batt;intensité;vitesse
+    data["valAcc"] = int(int(dataTab[0])/1023*100)
+    data["valFrein"] = int(int(dataTab[1])/1023*100)
+    data["valBatt"] = int(int(dataTab[2])/1023*100)
+    data["valIntensite"] = int(dataTab[3])
+    data["valVitesse"] = int(dataTab[4])/1023.*100

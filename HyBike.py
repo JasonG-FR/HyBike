@@ -20,14 +20,13 @@ from logSession import *
 from configuration import *
 from interfaceParametres import *
 
-def HyBike(changeParam):
+def colorer(objet,couleur):
+        try:
+            objet.configure(foreground=couleur)
+        except TclError:
+            return 1
 
-    try:
-        ser = serial.Serial('/dev/ttyACM0', 9600)
-        ser.readline()
-    except serial.serialutil.SerialException:
-        print("Arduino non connecté!")
-        exit()
+def HyBike(changeParam):
 
     """Chargement des paramètres"""
     params = lireConf()
@@ -36,23 +35,12 @@ def HyBike(changeParam):
     conso = {"moy":0,"nb":0,"i":0}  #serie de moyenne des consommations
     vite = {"moy":0,"nb":0,"i":0}   #serie de moyenne des vitesses
 
-    def colorer(objet,couleur):
-        try:
-            objet.configure(foreground=couleur)
-        except TclError:
-            return 1
-
     def updateData(dataTab, data, fichier=False, tpsConsigne=0, tempo=1, donnees=0, *args):
     
         #Vérifier si le flux est complet, sinon attendre qu'il n'y ait plus d'erreurs
             try:
                 """Conversion des données Arduino"""
-                #Format Arduino : acc;frein;batt;intensité;vitesse
-                data["valAcc"] = int(int(dataTab[0])/1023*100)
-                data["valFrein"] = int(int(dataTab[1])/1023*100)
-                data["valBatt"] = int(int(dataTab[2])/1023*100)
-                data["valIntensite"] = int(dataTab[3])
-                data["valVitesse"] = int(dataTab[4])/1023.*100
+                convArduino(dataTab, data)
         
                 """Mise à jour des variables de l'interface"""
                 ##Accélérateur
@@ -325,6 +313,13 @@ def HyBike(changeParam):
 
 if __name__ == '__main__':
     
+    try:
+        ser = serial.Serial('/dev/ttyACM0', 9600)
+        ser.readline()
+    except serial.serialutil.SerialException:
+        print("Arduino non connecté!")
+        exit()
+        
     changeParam = [False]
     
     #On lance l'interface principale
