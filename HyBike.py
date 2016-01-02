@@ -101,10 +101,13 @@ def HyBike(changeParam):
                 donnees[5] = "{0:.1f}".format(vitesseValeur.get())
                 logSession(fichier,donnees,tpsConsigne,tempo)
             
-        except ValueError or IndexError:
+        except ValueError:
             #Pause de 10ms
             sleep(0.01)
-
+        except IndexError:
+            #Pause de 10ms
+            sleep(0.01)
+            
     def getData(*args):
     
         data = {}
