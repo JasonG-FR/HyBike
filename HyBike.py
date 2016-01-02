@@ -10,7 +10,6 @@
 from tkinter import *
 from tkinter import ttk
 from time import sleep
-from random import randint
 import serial
 
 from fonctionsArduino import *
@@ -18,7 +17,6 @@ from fonctionsData import *
 from moyennes import *
 from formatH import *
 from fonctionsLogs import *
-from configuration import *
 from interfaceParametres import *
 
 
