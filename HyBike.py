@@ -14,17 +14,13 @@ from random import randint
 import serial
 
 from fonctionsArduino import *
+from fonctionsData import *
 from moyennes import *
 from formatH import *
 from fonctionsLogs import *
 from configuration import *
 from interfaceParametres import *
 
-def colorer(objet,couleur):
-        try:
-            objet.configure(foreground=couleur)
-        except TclError:
-            return 1
 
 def HyBike(changeParam):
 
@@ -43,30 +39,21 @@ def HyBike(changeParam):
     
             """Mise à jour des variables de l'interface"""
             ##Accélérateur
-            accelerateurValeur.set(data["valAcc"])
-            valeurAccStr.set(str(data["valAcc"]) + " %")
+            majProgressBar(data["valAcc"],accelerateurValeur,valeurAccStr)
     
             ##Frein
-            freinValeur.set(data["valFrein"])
-            valeurFreinStr.set(str(data["valFrein"]) + " %")
+            majProgressBar(data["valFrein"],freinValeur,valeurFreinStr)
     
             ##Batterie
+            majProgressBar(data["valBatt"],batterieValeur,valeurBattStr)
             Tension = data["valBatt"]*(params["maxVBat"]-params["minVBat"])/100.+params["minVBat"]
-            batterieValeur.set(data["valBatt"])
-            valeurBattStr.set(str(data["valBatt"]) + " %")
-            if data["valBatt"] > 30:
-                colorer(lbatt,"green")
-            elif data["valBatt"] > 10:
-                colorer(lbatt,"orange")
-            else:
-                colorer(lbatt,"red")
             voltageBattStr.set("{0:.2f}".format(Tension) + " V")
-        
-            #Le choix de cet algorithme de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC
+            
+            majCouleur(data["valBatt"],lbatt,"green",30,"orange",10,"red")
+            
+            """Le choix de cet algorithme de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC"""
             energie = params["capBat"]*params["maxVBat"]*data["valBatt"]/100
-        
             energieBattStr.set("{0:.2f}".format(energie) + " Wh")
-        
     
             ##Consommation
             if(data["valIntensite"] > params["I0"]):
@@ -74,10 +61,10 @@ def HyBike(changeParam):
                 tauxEch = params["Imax"]/(1023-params["I0"])             #Echantillonnage
                 Intensite = (data["valIntensite"]-params["I0"])*tauxEch  #On décale le zéro de I0 à 0
                 puissance = Tension*Intensite
-                puissanceValeurConso.set(puissance)
-                puissanceValeurProd.set(0)
-                valeurPuisConsoStr.set("{0:.0f}".format(puissance) + " W")
-                valeurPuisProdStr.set("0 W")
+                
+                majProgressBar(puissance,puissanceValeurConso,valeurPuisConsoStr,0,"W")
+                majProgressBar(0,puissanceValeurProd,valeurPuisProdStr,0,"W")
+
                 moyenneDynamique(conso,puissance,params["majMoy"])
             
             elif(data["valIntensite"] < params["I0"]):
@@ -85,28 +72,28 @@ def HyBike(changeParam):
                 tauxEch = params["Imax"]/params["I0"]            #Echantillonnage
                 Intensite = (data["valIntensite"]-params["I0"])*tauxEch
                 puissance = Tension*Intensite*-1
-                puissanceValeurConso.set(0)
-                puissanceValeurProd.set(puissance)
-                valeurPuisConsoStr.set("0 W")
-                valeurPuisProdStr.set("{0:.0f}".format(puissance) + " W")
+                
+                majProgressBar(0,puissanceValeurConso,valeurPuisConsoStr,0,"W")
+                majProgressBar(puissance,puissanceValeurProd,valeurPuisProdStr,0,"W")
+
                 moyenneDynamique(conso,puissance*-1,params["majMoy"])
             
             else:
                 #Arrêt
                 Intensite = 0
-                puissanceValeurConso.set(0)
-                puissanceValeurProd.set(0)
-                valeurPuisConsoStr.set("0 W")
-                valeurPuisProdStr.set("0 W")
+                
+                majProgressBar(0,puissanceValeurConso,valeurPuisConsoStr,0,"W")
+                majProgressBar(0,puissanceValeurProd,valeurPuisProdStr,0,"W")
+                
                 moyenneDynamique(conso,0,params["majMoy"])
         
             moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
+            majCouleur(conso["moy"],lMoyConso,"red",0,"green")
+            
             if conso["moy"] > 0:
-                colorer(lMoyConso,"red")
                 autonomie = energie/conso["moy"]
                 estimationBatt.set("~ " + formatH(autonomie))
             else:
-                colorer(lMoyConso,"green")
                 autonomie = -1
                 estimationBatt.set("N/A")
         
