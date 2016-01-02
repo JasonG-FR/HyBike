@@ -56,16 +56,7 @@ def HyBike(changeParam):
             energieBattStr.set("{0:.2f}".format(energie) + " Wh")
     
             ##Consommation
-            tauxEch = 0
-            if(data["valIntensite"] > params["I0"]):
-                #Décharge
-                tauxEch = params["Imax"]/(1023-params["I0"])
-                
-            elif(data["valIntensite"] < params["I0"]):
-                #Charge
-                tauxEch = params["Imax"]/params["I0"]
-                
-            Intensite = (data["valIntensite"]-params["I0"])*tauxEch     #On décale le zéro de I0 à 0
+            Intensite = convBinNumCentre(params["I0"],data["valIntensite"],params["Imax"])
             puissance = Tension*Intensite
                 
             if puissance > 0:

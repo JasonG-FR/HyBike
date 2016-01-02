@@ -11,6 +11,21 @@
 from tkinter import *
 
 
+def convBinNumCentre(zeroBin,valeurBin,maxVal):
+    #   Permet de réaliser la conversion binaire - numérique lorsque le zéro numérique n'est pas le zéro binaire
+    #   ex :    bin :   0   255     512     <-->       0     zeroBin  2zeroBin
+    #           num : -15    0       15     <-->    -maxVal     0     maxVal
+    # 
+    #   @param : 
+    #       zeroBin : valeur binaire pour une valeur numérique nulle (int)
+    #       valeurBin : valeur binaire à convertir (int)
+    #       maxVal : valeur numérique lorsque valeurBin = 2 x zeroBin
+    #
+    #
+    
+    tauxEch = maxVal/zeroBin
+    return (valeurBin-zeroBin)*tauxEch
+
 def majProgressBar(data,val,valStr,precision=-1,unite="%"):
     #   Permet de mettre à jour les valeurs des barres d'avancement (Progress Bar)
     # 
