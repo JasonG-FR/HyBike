@@ -11,6 +11,7 @@ from tkinter import *
 from tkinter import ttk
 
 from moyennes import *
+from fonctionsData import *
 from configuration import *
 from getData import *
 
