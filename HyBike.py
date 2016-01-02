@@ -87,16 +87,18 @@ def HyBike(changeParam):
         
             ##Vitesse
             vitesse = data["valVitesse"]*params["Vmax"]/100
-            vitesseValeur.set(vitesse)
-            valeurVitesseStr.set("{0:.0f}".format(vitesse) + " km/h   <=>   "+"{0:.1f}".format(vitesse*10/36.) + " m/s")
+            
+            majProgressBar(vitesse,vitesseValeur,valeurVitesseStr,0,"km/h   <=>   "+"{0:.1f}".format(vitesse*10/36.) + " m/s")
+            
             moyenneDynamique(vite,vitesse,params["majMoy"])
             moyenneVitesse.set("Vitesse moyenne : " + "{0:.1f}".format(vite["moy"]) + " km/h")
+            
             if autonomie < 0:
                 estimationVitesse.set("Autonomie restante : N/A")
             else:
                 estimationVitesse.set("Autonomie restante : ~ " + "{0:.0f}".format(vite["moy"]*autonomie) + " km")
             
-            """Mise à jour du log si actif"""
+            ##Mise à jour du log si actif
             if fichier != False:
                 #[tps,acc,frein,ubat,imot,vit]
                 donnees[1] = str(accelerateurValeur.get())
