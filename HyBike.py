@@ -9,10 +9,9 @@
 
 from tkinter import *
 from tkinter import ttk
-import serial
 
 from moyennes import *
-from interfaceParametres import *
+from configuration import *
 from getData import *
 
 
@@ -136,22 +135,4 @@ def HyBike(changeParam, ser):
 
 if __name__ == '__main__':
     
-    try:
-        ser = serial.Serial('/dev/ttyACM0', 9600)
-        ser.readline()
-    except serial.serialutil.SerialException:
-        print("Arduino non connecté!")
-        exit()
-        
-    changeParam = [False]
-    
-    #On lance l'interface principale
-    HyBike(changeParam,ser)
-    
-    #Tant qu'on veux changer les paramètres
-    while changeParam[0]:
-        #On lance l'interface des paramètres
-        interfaceParametres()
-        changeParam[0] = False
-        #Puis on relance l'interface principale
-        HyBike(changeParam,ser)
+    exit()
