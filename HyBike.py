@@ -9,20 +9,22 @@
 
 from tkinter import *
 from tkinter import ttk
-from time import sleep
 import serial
 
-from fonctionsArduino import *
-from fonctionsData import *
 from moyennes import *
-from formatH import *
-from fonctionsLogs import *
 from interfaceParametres import *
-from updateData import *
 from getData import *
 
 
 def HyBike(changeParam, ser):
+    #   Interface principale (Dashboard) du programme OpenHyBike
+    # 
+    #   @param : 
+    #       changeParam : booléen permettant de savoir si un changement de paramètre à eu lieu
+    #       ser : objet contenant la connection au port série (connection avec Arduino)
+    #
+    #   
+    
     
     def startData(*args):
         tkObj = {"lbatt":lbatt,"lMoyConso":lMoyConso}
