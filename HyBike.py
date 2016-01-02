@@ -56,37 +56,34 @@ def HyBike(changeParam):
             energieBattStr.set("{0:.2f}".format(energie) + " Wh")
     
             ##Consommation
+            tauxEch = 0
             if(data["valIntensite"] > params["I0"]):
                 #Décharge
-                tauxEch = params["Imax"]/(1023-params["I0"])             #Echantillonnage
-                Intensite = (data["valIntensite"]-params["I0"])*tauxEch  #On décale le zéro de I0 à 0
-                puissance = Tension*Intensite
+                tauxEch = params["Imax"]/(1023-params["I0"])
                 
-                majProgressBar(puissance,puissanceValeurConso,valeurPuisConsoStr,0,"W")
-                majProgressBar(0,puissanceValeurProd,valeurPuisProdStr,0,"W")
-
-                moyenneDynamique(conso,puissance,params["majMoy"])
-            
             elif(data["valIntensite"] < params["I0"]):
                 #Charge
-                tauxEch = params["Imax"]/params["I0"]            #Echantillonnage
-                Intensite = (data["valIntensite"]-params["I0"])*tauxEch
-                puissance = Tension*Intensite*-1
+                tauxEch = params["Imax"]/params["I0"]
                 
-                majProgressBar(0,puissanceValeurConso,valeurPuisConsoStr,0,"W")
-                majProgressBar(puissance,puissanceValeurProd,valeurPuisProdStr,0,"W")
-
-                moyenneDynamique(conso,puissance*-1,params["majMoy"])
-            
-            else:
-                #Arrêt
-                Intensite = 0
+            Intensite = (data["valIntensite"]-params["I0"])*tauxEch     #On décale le zéro de I0 à 0
+            puissance = Tension*Intensite
                 
-                majProgressBar(0,puissanceValeurConso,valeurPuisConsoStr,0,"W")
+            if puissance > 0:
+                #Décharge
+                majProgressBar(puissance,puissanceValeurConso,valeurPuisConsoStr,0,"W")
                 majProgressBar(0,puissanceValeurProd,valeurPuisProdStr,0,"W")
                 
-                moyenneDynamique(conso,0,params["majMoy"])
-        
+            elif puissance < 0:
+                #Charge
+                majProgressBar(0,puissanceValeurConso,valeurPuisConsoStr,0,"W")
+                majProgressBar(-1*puissance,puissanceValeurProd,valeurPuisProdStr,0,"W")
+                
+            else:
+                #Arrêt
+                majProgressBar(0,puissanceValeurConso,valeurPuisConsoStr,0,"W")
+                majProgressBar(0,puissanceValeurProd,valeurPuisProdStr,0,"W")
+            
+            moyenneDynamique(conso,puissance,params["majMoy"])
             moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
             majCouleur(conso["moy"],lMoyConso,"red",0,"green")
             
