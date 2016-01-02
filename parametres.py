@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 #  parametres.py
+#
+#  Copyright 2016 Jason Gombert <jason.gombert@gmail.com>
 #  
 #
 

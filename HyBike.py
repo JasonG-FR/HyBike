@@ -3,7 +3,7 @@
 #
 #  HyBike.py
 #  
-#  Copyright 2015 Jason Gombert <jason.gombert@gmail.com>
+#  Copyright 2016 Jason Gombert <jason.gombert@gmail.com>
 #
 #
 
