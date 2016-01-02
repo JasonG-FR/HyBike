@@ -18,134 +18,16 @@ from moyennes import *
 from formatH import *
 from fonctionsLogs import *
 from interfaceParametres import *
+from updateData import *
+from getData import *
 
 
-def HyBike(changeParam):
-
-    def updateData(dataTab, data, fichier=False, tpsConsigne=0, tempo=1, donnees=0, *args):
-        #Vérifier si le flux est complet, sinon attendre qu'il n'y ait plus d'erreurs
-        try:
-            """Conversion des données Arduino"""
-            convArduino(dataTab, data)
+def HyBike(changeParam, ser):
     
-            """Mise à jour des variables de l'interface"""
-            ##Accélérateur
-            majProgressBar(data["valAcc"],tkVars["accelerateurValeur"],tkVars["valeurAccStr"])
-    
-            ##Frein
-            majProgressBar(data["valFrein"],tkVars["freinValeur"],tkVars["valeurFreinStr"])
-    
-            ##Batterie
-            majProgressBar(data["valBatt"],tkVars["batterieValeur"],tkVars["valeurBattStr"])
-            Tension = data["valBatt"]*(params["maxVBat"]-params["minVBat"])/100.+params["minVBat"]
-            tkVars["voltageBattStr"].set("{0:.2f}".format(Tension) + " V")
-            
-            majCouleur(data["valBatt"],lbatt,"green",30,"orange",10,"red")
-            
-            """Le choix de cet algorithme de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC"""
-            energie = params["capBat"]*params["maxVBat"]*data["valBatt"]/100
-            tkVars["energieBattStr"].set("{0:.2f}".format(energie) + " Wh")
-    
-            ##Consommation
-            Intensite = convBinNumCentre(params["I0"],data["valIntensite"],params["Imax"])
-            puissance = Tension*Intensite
-                
-            if puissance > 0:
-                #Décharge
-                majProgressBar(puissance,tkVars["puissanceValeurConso"],tkVars["valeurPuisConsoStr"],0,"W")
-                majProgressBar(0,tkVars["puissanceValeurProd"],tkVars["valeurPuisProdStr"],0,"W")
-                
-            elif puissance < 0:
-                #Charge
-                majProgressBar(0,tkVars["puissanceValeurConso"],tkVars["valeurPuisConsoStr"],0,"W")
-                majProgressBar(-1*puissance,tkVars["puissanceValeurProd"],tkVars["valeurPuisProdStr"],0,"W")
-                
-            else:
-                #Arrêt
-                majProgressBar(0,tkVars["puissanceValeurConso"],tkVars["valeurPuisConsoStr"],0,"W")
-                majProgressBar(0,tkVars["puissanceValeurProd"],tkVars["valeurPuisProdStr"],0,"W")
-            
-            moyenneDynamique(conso,puissance,params["majMoy"])
-            tkVars["moyenneConso"].set("{0:.0f}".format(conso["moy"]) + " W")
-            majCouleur(conso["moy"],lMoyConso,"red",0,"green")
-            
-            if conso["moy"] > 0:
-                autonomie = energie/conso["moy"]
-                tkVars["estimationBatt"].set("~ " + formatH(autonomie))
-            else:
-                autonomie = -1
-                tkVars["estimationBatt"].set("N/A")
-        
-            ##Vitesse
-            vitesse = data["valVitesse"]*params["Vmax"]/100
-            
-            majProgressBar(vitesse,tkVars["vitesseValeur"],tkVars["valeurVitesseStr"],0,"km/h   <=>   "+"{0:.1f}".format(vitesse*10/36.) + " m/s")
-            
-            moyenneDynamique(vite,vitesse,params["majMoy"])
-            tkVars["moyenneVitesse"].set("Vitesse moyenne : " + "{0:.1f}".format(vite["moy"]) + " km/h")
-            
-            if autonomie < 0:
-                tkVars["estimationVitesse"].set("Autonomie restante : N/A")
-            else:
-                tkVars["estimationVitesse"].set("Autonomie restante : ~ " + "{0:.0f}".format(vite["moy"]*autonomie) + " km")
-            
-            ##Mise à jour du log si actif
-            if fichier != False:
-                #[tps,acc,frein,ubat,imot,vit]
-                donnees[1] = str(tkVars["accelerateurValeur"].get())
-                donnees[2] = str(tkVars["freinValeur"].get())
-                donnees[3] = "{0:.2f}".format(Tension)
-                donnees[4] = "{0:.2f}".format(Intensite)
-                donnees[5] = "{0:.1f}".format(tkVars["vitesseValeur"].get())
-                logSession(fichier,donnees,tpsConsigne,tempo)
-            
-        except ValueError:
-            #Pause de 10ms
-            sleep(0.01)
-        except IndexError:
-            #Pause de 10ms
-            sleep(0.01)
-            
-    def getData(*args):
-    
-        data = {}
-        tpsConsigne = [0]
-        fichier = 0
-    
-        #Flush du tampon d'Arduino
-        ser.flushInput()
-    
-        while(True):
-            #Lecture des données issues d'Arduino
-            dataTab = decodageArduino(ser)
-        
-            #Mise à jour des variables et de l'affichage
-            if tkVars["logON"].get():
-                #On crée le fichier s'il n'existe pas
-                if fichier == 0:
-                    
-                    fichier = open(nomLog(),"w")
-                    #[tps,acc,frein,ubat,imot,vit]
-                    donnees = ["0","0","0","0","0","0"]
-        
-                updateData(dataTab, data, fichier, tpsConsigne, params["tempo"], donnees)
-            else:
-                #On ferme le fichier s'il est ouvert
-                if fichier != 0:
-                    fichier.close()
-                    fichier = 0
-            
-                updateData(dataTab, data)
-        
-            try:
-                fenetre.update()
-            except TclError:
-                break
-    
-        try:
-            fenetre.update()
-        except TclError:
-            return 1
+    def startData(*args):
+        tkObj = {"lbatt":lbatt,"lMoyConso":lMoyConso}
+        moyennes = {"conso":conso,"vite":vite}
+        getData(ser, fenetre, tkVars, tkObj, moyennes, params)
 
     def stopLog(*args):
         tkVars["logON"].set("False")
@@ -247,7 +129,7 @@ def HyBike(changeParam):
     ttk.Button(Fbouton, text="Paramètres", command=modifParam).grid(column=5, row=1, pady=5)
     ttk.Button(Fbouton, text="Quitter", command=fenetre.destroy).grid(column=6, row=1, pady=5)
 
-    fenetre.after(0, getData)   #Démarre l'affichage des données dès le lancement de la fenêtre
+    fenetre.after(0, startData)   #Démarre l'affichage des données dès le lancement de la fenêtre
     fenetre.mainloop()
 
 if __name__ == '__main__':
@@ -262,7 +144,7 @@ if __name__ == '__main__':
     changeParam = [False]
     
     #On lance l'interface principale
-    HyBike(changeParam)
+    HyBike(changeParam,ser)
     
     #Tant qu'on veux changer les paramètres
     while changeParam[0]:
@@ -270,4 +152,4 @@ if __name__ == '__main__':
         interfaceParametres()
         changeParam[0] = False
         #Puis on relance l'interface principale
-        HyBike(changeParam)
+        HyBike(changeParam,ser)
