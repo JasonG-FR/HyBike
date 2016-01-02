@@ -24,13 +24,6 @@ from interfaceParametres import *
 
 def HyBike(changeParam):
 
-    """Chargement des paramètres"""
-    params = lireConf()
-
-    """Définition des variables"""
-    conso = {"moy":0,"nb":0,"i":0}  #serie de moyenne des consommations
-    vite = {"moy":0,"nb":0,"i":0}   #serie de moyenne des vitesses
-
     def updateData(dataTab, data, fichier=False, tpsConsigne=0, tempo=1, donnees=0, *args):
         #Vérifier si le flux est complet, sinon attendre qu'il n'y ait plus d'erreurs
         try:
@@ -108,10 +101,7 @@ def HyBike(changeParam):
                 donnees[5] = "{0:.1f}".format(vitesseValeur.get())
                 logSession(fichier,donnees,tpsConsigne,tempo)
             
-        except ValueError:
-            #Pause de 10ms
-            sleep(0.01)
-        except IndexError:
+        except ValueError or IndexError:
             #Pause de 10ms
             sleep(0.01)
 
@@ -169,6 +159,14 @@ def HyBike(changeParam):
         changeParam[0] = True
         fenetre.destroy()
 
+
+    """Chargement des paramètres"""
+    params = lireConf()
+
+    """Définition des variables"""
+    conso = {"moy":0,"nb":0,"i":0}  #serie de moyenne des consommations
+    vite = {"moy":0,"nb":0,"i":0}   #serie de moyenne des vitesses
+
     """Interface"""
     fenetre = Tk()
     fenetre.title("Dashboard")
@@ -176,7 +174,6 @@ def HyBike(changeParam):
 
 
     """Variables"""
-    
     #Globales
     logON = BooleanVar()
     logON.set("False")
