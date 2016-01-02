@@ -30,21 +30,21 @@ def HyBike(changeParam):
     
             """Mise à jour des variables de l'interface"""
             ##Accélérateur
-            majProgressBar(data["valAcc"],accelerateurValeur,valeurAccStr)
+            majProgressBar(data["valAcc"],tkVars["accelerateurValeur"],tkVars["valeurAccStr"])
     
             ##Frein
-            majProgressBar(data["valFrein"],freinValeur,valeurFreinStr)
+            majProgressBar(data["valFrein"],tkVars["freinValeur"],tkVars["valeurFreinStr"])
     
             ##Batterie
-            majProgressBar(data["valBatt"],batterieValeur,valeurBattStr)
+            majProgressBar(data["valBatt"],tkVars["batterieValeur"],tkVars["valeurBattStr"])
             Tension = data["valBatt"]*(params["maxVBat"]-params["minVBat"])/100.+params["minVBat"]
-            voltageBattStr.set("{0:.2f}".format(Tension) + " V")
+            tkVars["voltageBattStr"].set("{0:.2f}".format(Tension) + " V")
             
             majCouleur(data["valBatt"],lbatt,"green",30,"orange",10,"red")
             
             """Le choix de cet algorithme de calcul est à vérifier (cycle de décharge non linéaire, estimation energie à calibrer) -> cf fichier ODC"""
             energie = params["capBat"]*params["maxVBat"]*data["valBatt"]/100
-            energieBattStr.set("{0:.2f}".format(energie) + " Wh")
+            tkVars["energieBattStr"].set("{0:.2f}".format(energie) + " Wh")
     
             ##Consommation
             Intensite = convBinNumCentre(params["I0"],data["valIntensite"],params["Imax"])
@@ -52,51 +52,51 @@ def HyBike(changeParam):
                 
             if puissance > 0:
                 #Décharge
-                majProgressBar(puissance,puissanceValeurConso,valeurPuisConsoStr,0,"W")
-                majProgressBar(0,puissanceValeurProd,valeurPuisProdStr,0,"W")
+                majProgressBar(puissance,tkVars["puissanceValeurConso"],tkVars["valeurPuisConsoStr"],0,"W")
+                majProgressBar(0,tkVars["puissanceValeurProd"],tkVars["valeurPuisProdStr"],0,"W")
                 
             elif puissance < 0:
                 #Charge
-                majProgressBar(0,puissanceValeurConso,valeurPuisConsoStr,0,"W")
-                majProgressBar(-1*puissance,puissanceValeurProd,valeurPuisProdStr,0,"W")
+                majProgressBar(0,tkVars["puissanceValeurConso"],tkVars["valeurPuisConsoStr"],0,"W")
+                majProgressBar(-1*puissance,tkVars["puissanceValeurProd"],tkVars["valeurPuisProdStr"],0,"W")
                 
             else:
                 #Arrêt
-                majProgressBar(0,puissanceValeurConso,valeurPuisConsoStr,0,"W")
-                majProgressBar(0,puissanceValeurProd,valeurPuisProdStr,0,"W")
+                majProgressBar(0,tkVars["puissanceValeurConso"],tkVars["valeurPuisConsoStr"],0,"W")
+                majProgressBar(0,tkVars["puissanceValeurProd"],tkVars["valeurPuisProdStr"],0,"W")
             
             moyenneDynamique(conso,puissance,params["majMoy"])
-            moyenneConso.set("{0:.0f}".format(conso["moy"]) + " W")
+            tkVars["moyenneConso"].set("{0:.0f}".format(conso["moy"]) + " W")
             majCouleur(conso["moy"],lMoyConso,"red",0,"green")
             
             if conso["moy"] > 0:
                 autonomie = energie/conso["moy"]
-                estimationBatt.set("~ " + formatH(autonomie))
+                tkVars["estimationBatt"].set("~ " + formatH(autonomie))
             else:
                 autonomie = -1
-                estimationBatt.set("N/A")
+                tkVars["estimationBatt"].set("N/A")
         
             ##Vitesse
             vitesse = data["valVitesse"]*params["Vmax"]/100
             
-            majProgressBar(vitesse,vitesseValeur,valeurVitesseStr,0,"km/h   <=>   "+"{0:.1f}".format(vitesse*10/36.) + " m/s")
+            majProgressBar(vitesse,tkVars["vitesseValeur"],tkVars["valeurVitesseStr"],0,"km/h   <=>   "+"{0:.1f}".format(vitesse*10/36.) + " m/s")
             
             moyenneDynamique(vite,vitesse,params["majMoy"])
-            moyenneVitesse.set("Vitesse moyenne : " + "{0:.1f}".format(vite["moy"]) + " km/h")
+            tkVars["moyenneVitesse"].set("Vitesse moyenne : " + "{0:.1f}".format(vite["moy"]) + " km/h")
             
             if autonomie < 0:
-                estimationVitesse.set("Autonomie restante : N/A")
+                tkVars["estimationVitesse"].set("Autonomie restante : N/A")
             else:
-                estimationVitesse.set("Autonomie restante : ~ " + "{0:.0f}".format(vite["moy"]*autonomie) + " km")
+                tkVars["estimationVitesse"].set("Autonomie restante : ~ " + "{0:.0f}".format(vite["moy"]*autonomie) + " km")
             
             ##Mise à jour du log si actif
             if fichier != False:
                 #[tps,acc,frein,ubat,imot,vit]
-                donnees[1] = str(accelerateurValeur.get())
-                donnees[2] = str(freinValeur.get())
+                donnees[1] = str(tkVars["accelerateurValeur"].get())
+                donnees[2] = str(tkVars["freinValeur"].get())
                 donnees[3] = "{0:.2f}".format(Tension)
                 donnees[4] = "{0:.2f}".format(Intensite)
-                donnees[5] = "{0:.1f}".format(vitesseValeur.get())
+                donnees[5] = "{0:.1f}".format(tkVars["vitesseValeur"].get())
                 logSession(fichier,donnees,tpsConsigne,tempo)
             
         except ValueError:
@@ -120,7 +120,7 @@ def HyBike(changeParam):
             dataTab = decodageArduino(ser)
         
             #Mise à jour des variables et de l'affichage
-            if logON.get():
+            if tkVars["logON"].get():
                 #On crée le fichier s'il n'existe pas
                 if fichier == 0:
                     
@@ -148,13 +148,13 @@ def HyBike(changeParam):
             return 1
 
     def stopLog(*args):
-        logON.set("False")
+        tkVars["logON"].set("False")
     
     def startLog(*args):
-        logON.set("True")
+        tkVars["logON"].set("True")
 
     def RAZ(*args):
-        remiseAZ(conso,vite,moyenneConso,moyenneVitesse)
+        remiseAZ(conso,vite,tkVars["moyenneConso"],tkVars["moyenneVitesse"])
     
     def modifParam(*args):
         changeParam[0] = True
@@ -175,37 +175,7 @@ def HyBike(changeParam):
 
 
     """Variables"""
-    #Globales
-    logON = BooleanVar()
-    logON.set("False")
-
-    #Accélérateur
-    accelerateurValeur = IntVar()
-    valeurAccStr = StringVar()
-
-    #Frein
-    freinValeur = IntVar()
-    valeurFreinStr = StringVar()
-
-    #Batterie
-    batterieValeur = IntVar()
-    valeurBattStr = StringVar()
-    voltageBattStr = StringVar()
-    energieBattStr = StringVar()
-
-    #Consommation
-    puissanceValeurConso = DoubleVar()
-    puissanceValeurProd = DoubleVar()
-    valeurPuisConsoStr = StringVar()
-    valeurPuisProdStr = StringVar()
-    moyenneConso = StringVar()
-    estimationBatt = StringVar()
-
-    #Vitesse
-    vitesseValeur = DoubleVar()
-    valeurVitesseStr = StringVar()
-    moyenneVitesse = StringVar()
-    estimationVitesse = StringVar()
+    tkVars = creerVarTK()
 
 
     """Widgets"""
@@ -218,41 +188,41 @@ def HyBike(changeParam):
     frameAcc = ttk.Labelframe(cadre, text=' Accélérateur ', padding="5 5 5 5")
     frameAcc.grid(column=1, row=1, sticky=(N, W, E, S), rowspan=2, columnspan=5, padx=5, pady=5)
 
-    ttk.Progressbar(frameAcc, orient=HORIZONTAL, length=400, mode='determinate', variable=accelerateurValeur, maximum=100).grid(column=1, row=1, sticky=(W, E))
-    ttk.Label(frameAcc, textvariable=valeurAccStr).grid(column=1, row=2)
+    ttk.Progressbar(frameAcc, orient=HORIZONTAL, length=400, mode='determinate', variable=tkVars["accelerateurValeur"], maximum=100).grid(column=1, row=1, sticky=(W, E))
+    ttk.Label(frameAcc, textvariable=tkVars["valeurAccStr"]).grid(column=1, row=2)
 
     #Cadre Frein
     frameFrein = ttk.Labelframe(cadre, text=' Frein ', padding="5 5 5 5")
     frameFrein.grid(column=1, row=3, sticky=(N, W, E, S), rowspan=2, columnspan=5, padx=5, pady=5)
 
-    ttk.Progressbar(frameFrein, orient=HORIZONTAL, length=400, mode='determinate', variable=freinValeur, maximum=100).grid(column=1, row=1, sticky=(W, E))
-    ttk.Label(frameFrein, textvariable=valeurFreinStr).grid(column=1, row=2)
+    ttk.Progressbar(frameFrein, orient=HORIZONTAL, length=400, mode='determinate', variable=tkVars["freinValeur"], maximum=100).grid(column=1, row=1, sticky=(W, E))
+    ttk.Label(frameFrein, textvariable=tkVars["valeurFreinStr"]).grid(column=1, row=2)
 
     #Cadre Batterie
     frameBatt = ttk.LabelFrame(cadre, text=' Batterie ', padding="5 5 5 5")
     frameBatt.grid(column=7, row=1, sticky=(N, W, E, S), rowspan = 4, columnspan = 2, padx=5, pady=5)
 
-    ttk.Progressbar(frameBatt, orient=VERTICAL, length=120, mode='determinate', variable=batterieValeur, maximum=100).grid(column=1, row=1, rowspan=3, sticky=(W, E), padx=5)
-    lbatt = ttk.Label(frameBatt, textvariable=valeurBattStr)
+    ttk.Progressbar(frameBatt, orient=VERTICAL, length=120, mode='determinate', variable=tkVars["batterieValeur"], maximum=100).grid(column=1, row=1, rowspan=3, sticky=(W, E), padx=5)
+    lbatt = ttk.Label(frameBatt, textvariable=tkVars["valeurBattStr"])
     lbatt.grid(column=2, row=1, padx=5)
-    ttk.Label(frameBatt, textvariable=voltageBattStr).grid(column=2, row=2, padx=5)
-    ttk.Label(frameBatt, textvariable=energieBattStr).grid(column=2, row=3, padx=5)
+    ttk.Label(frameBatt, textvariable=tkVars["voltageBattStr"]).grid(column=2, row=2, padx=5)
+    ttk.Label(frameBatt, textvariable=tkVars["energieBattStr"]).grid(column=2, row=3, padx=5)
 
     #Cadre Consommation
     frameConso = ttk.LabelFrame(cadre, text=' Consommation ', padding="5 5 5 5")
     frameConso.grid(column=9, row=1, sticky=(N, W, E, S), rowspan = 4, columnspan = 4, padx=5, pady=5)
 
     ttk.Label(frameConso, text="Recharge").grid(column=1, row=1, padx=5)
-    ttk.Label(frameConso, textvariable=valeurPuisProdStr, foreground="green").grid(column=1, row=3, padx=5)
-    ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=puissanceValeurProd, maximum=params["Pmax"]).grid(column=2, row=1, rowspan=3, sticky=(W, E), padx=5)
-    ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=puissanceValeurConso, maximum=params["Pmax"]).grid(column=3, row=1, rowspan=3, sticky=(W, E), padx=5)
+    ttk.Label(frameConso, textvariable=tkVars["valeurPuisProdStr"], foreground="green").grid(column=1, row=3, padx=5)
+    ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=tkVars["puissanceValeurProd"], maximum=params["Pmax"]).grid(column=2, row=1, rowspan=3, sticky=(W, E), padx=5)
+    ttk.Progressbar(frameConso, orient=VERTICAL, length=100, mode='determinate', variable=tkVars["puissanceValeurConso"], maximum=params["Pmax"]).grid(column=3, row=1, rowspan=3, sticky=(W, E), padx=5)
     ttk.Label(frameConso, text="Décharge").grid(column=4, row=1, padx=5)
-    ttk.Label(frameConso, textvariable=valeurPuisConsoStr, foreground="red").grid(column=4, row=3, padx=5)
+    ttk.Label(frameConso, textvariable=tkVars["valeurPuisConsoStr"], foreground="red").grid(column=4, row=3, padx=5)
     Fmoy = ttk.Frame(frameConso)
     Fmoy.grid(column=1, row=4, columnspan=4)
-    lMoyConso = ttk.Label(Fmoy, textvariable=moyenneConso)
+    lMoyConso = ttk.Label(Fmoy, textvariable=tkVars["moyenneConso"])
     lMoyConso.grid(column=1, row=1, padx=5, pady=5)
-    ttk.Label(Fmoy, textvariable=estimationBatt).grid(column=2, row=1, padx=5, pady=5)
+    ttk.Label(Fmoy, textvariable=tkVars["estimationBatt"]).grid(column=2, row=1, padx=5, pady=5)
 
     #Cadre Vitesse
     frameVitesse = ttk.LabelFrame(cadre, text=' Vitesse ', padding="5 5 5 5")
@@ -260,12 +230,12 @@ def HyBike(changeParam):
 
     Fvit = ttk.Frame(frameVitesse)
     Fvit.grid(column=1, row=1, columnspan=13)
-    ttk.Label(Fvit, textvariable=valeurVitesseStr).grid(column=1, row=1, padx=5, pady=5)
-    ttk.Progressbar(frameVitesse, orient=HORIZONTAL, length=740, mode='determinate', variable=vitesseValeur, maximum=params["Vmax"]).grid(column=1, row=2, columnspan=13, sticky=(W, E), pady=5, padx=5)
+    ttk.Label(Fvit, textvariable=tkVars["valeurVitesseStr"]).grid(column=1, row=1, padx=5, pady=5)
+    ttk.Progressbar(frameVitesse, orient=HORIZONTAL, length=740, mode='determinate', variable=tkVars["vitesseValeur"], maximum=params["Vmax"]).grid(column=1, row=2, columnspan=13, sticky=(W, E), pady=5, padx=5)
     Fvit2 = ttk.Frame(frameVitesse)
     Fvit2.grid(column=1, row=3, columnspan=13)
-    ttk.Label(Fvit2, textvariable=moyenneVitesse).grid(column=1, row=1, padx=25, pady=5)
-    ttk.Label(Fvit2, textvariable=estimationVitesse).grid(column=2, row=1, padx=25, pady=5)
+    ttk.Label(Fvit2, textvariable=tkVars["moyenneVitesse"]).grid(column=1, row=1, padx=25, pady=5)
+    ttk.Label(Fvit2, textvariable=tkVars["estimationVitesse"]).grid(column=2, row=1, padx=25, pady=5)
 
 
     #Cadre Boutons

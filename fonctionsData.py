@@ -10,6 +10,30 @@
 
 from tkinter import *
 
+def creerVarTK():
+    
+    #Génération du dictionnaire de variables TK
+    varsINT = ["accelerateurValeur","freinValeur","batterieValeur"]
+    varsDOUBLE = ["puissanceValeurConso","puissanceValeurProd","vitesseValeur"]
+    varsSTR = ["valeurAccStr","valeurFreinStr","valeurBattStr","voltageBattStr",
+               "energieBattStr","valeurPuisConsoStr","valeurPuisProdStr","moyenneConso",
+               "estimationBatt","valeurVitesseStr","moyenneVitesse","estimationVitesse"]
+    varsBOOL = ["logON"]
+    
+    tkVars = {}
+    for key in varsINT:
+        tkVars[key] = IntVar()
+    for key in varsDOUBLE:
+        tkVars[key] = DoubleVar()
+    for key in varsSTR:
+        tkVars[key] = StringVar()
+    for key in varsBOOL:
+        tkVars[key] = BooleanVar()
+    
+    #Initialisation des variables
+    tkVars["logON"].set("False")
+    
+    return tkVars
 
 def convBinNumCentre(zeroBin,valeurBin,maxVal):
     #   Permet de réaliser la conversion binaire - numérique lorsque le zéro numérique n'est pas le zéro binaire
