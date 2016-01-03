@@ -95,16 +95,16 @@ def interfaceParametres():
 
     genLabels(frameBatL,["Tension à 0% :","Tension à 100% :","Capacité :"])
     ttk.Label(frameBatV, textvariable=minVBat).grid(column=1, row=1, padx=5)
-    ttk.Button(frameBatV, text="-", command=lambda:moins(minVBat,0.1,0," V"), width=2).grid(column=2, row=1)
-    ttk.Button(frameBatV, text="+", command=lambda:plus(minVBat,0.1,100," V"), width=2).grid(column=3, row=1)
+    Button(frameBatV, text="-", command=lambda:moins(minVBat,0.1,0," V"), width=1, repeatdelay=500, repeatinterval=100).grid(column=2, row=1)
+    Button(frameBatV, text="+", command=lambda:plus(minVBat,0.1,100," V"), width=1, repeatdelay=500, repeatinterval=100).grid(column=3, row=1)
     
     ttk.Label(frameBatV, textvariable=maxVBat).grid(column=1, row=2, padx=5)
-    ttk.Button(frameBatV, text="-", command=lambda:moins(maxVBat,0.1,0," V"), width=2).grid(column=2, row=2, pady=5)
-    ttk.Button(frameBatV, text="+", command=lambda:plus(maxVBat,0.1,100," V"), width=2).grid(column=3, row=2, pady=5)
+    Button(frameBatV, text="-", command=lambda:moins(maxVBat,0.1,0," V"), width=1, repeatdelay=500, repeatinterval=100).grid(column=2, row=2)
+    Button(frameBatV, text="+", command=lambda:plus(maxVBat,0.1,100," V"), width=1, repeatdelay=500, repeatinterval=100).grid(column=3, row=2)
 
     ttk.Label(frameBatV, textvariable=capBat).grid(column=1, row=3, padx=5)
-    ttk.Button(frameBatV, text="-", command=lambda:moins(capBat,1,0," Ah"), width=2).grid(column=2, row=3)
-    ttk.Button(frameBatV, text="+", command=lambda:plus(capBat,1,200," Ah"), width=2).grid(column=3, row=3)
+    Button(frameBatV, text="-", command=lambda:moins(capBat,1,0," Ah"), width=1, repeatdelay=500, repeatinterval=100).grid(column=2, row=3)
+    Button(frameBatV, text="+", command=lambda:plus(capBat,1,200," Ah"), width=1, repeatdelay=500, repeatinterval=100).grid(column=3, row=3)
     
     #Cadre Moteur
     frameMot = ttk.Labelframe(cadre, text=' Moteur électrique ', padding="5 5 5 5")
@@ -117,16 +117,16 @@ def interfaceParametres():
     genLabels(frameMotL,["Puissance max :","Imax capteur :","Valeur capteur 0A :"])
     
     ttk.Label(frameMotV, textvariable=Pmax).grid(column=1, row=1, padx=5)
-    ttk.Button(frameMotV, text="-", command=lambda:moins(Pmax,1,0," W"), width=2).grid(column=2, row=1)
-    ttk.Button(frameMotV, text="+", command=lambda:plus(Pmax,1,3000," W"), width=2).grid(column=3, row=1)
+    Button(frameMotV, text="-", command=lambda:moins(Pmax,1,0," W"), width=1, repeatdelay=500, repeatinterval=25).grid(column=2, row=1)
+    Button(frameMotV, text="+", command=lambda:plus(Pmax,1,3000," W"), width=1, repeatdelay=500, repeatinterval=25).grid(column=3, row=1)
     
     ttk.Label(frameMotV, textvariable=Imax).grid(column=1, row=2, padx=5)
-    ttk.Button(frameMotV, text="-", command=lambda:moins(Imax,0.1,0," A"), width=2).grid(column=2, row=2, pady=5)
-    ttk.Button(frameMotV, text="+", command=lambda:plus(Imax,0.1,200," A"), width=2).grid(column=3, row=2, pady=5)
+    Button(frameMotV, text="-", command=lambda:moins(Imax,0.1,0," A"), width=1, repeatdelay=500, repeatinterval=100).grid(column=2, row=2)
+    Button(frameMotV, text="+", command=lambda:plus(Imax,0.1,200," A"), width=1, repeatdelay=500, repeatinterval=100).grid(column=3, row=2)
     
     ttk.Label(frameMotV, textvariable=I0).grid(column=1, row=3, padx=5)
-    ttk.Button(frameMotV, text="-", command=lambda:moins(I0,1,0," "), width=2).grid(column=2, row=3)
-    ttk.Button(frameMotV, text="+", command=lambda:plus(I0,1,1023," "), width=2).grid(column=3, row=3)
+    Button(frameMotV, text="-", command=lambda:moins(I0,1,0," "), width=1, repeatdelay=500, repeatinterval=50).grid(column=2, row=3)
+    Button(frameMotV, text="+", command=lambda:plus(I0,1,1023," "), width=1, repeatdelay=500, repeatinterval=50).grid(column=3, row=3)
     
     #Cadre Dashboard
     frameDash = ttk.Labelframe(cadre, text=' Dashboard ', padding="5 5 5 5")
@@ -139,12 +139,12 @@ def interfaceParametres():
     genLabels(frameDashL,["Vitesse max :","MàJ moyennes :"])
     
     ttk.Label(frameDashV, textvariable=Vmax).grid(column=1, row=1, padx=5)
-    ttk.Button(frameDashV, text="-", command=lambda:moins(Vmax,1,0," km/h"), width=2).grid(column=2, row=1)
-    ttk.Button(frameDashV, text="+", command=lambda:plus(Vmax,1,200," km/h"), width=2).grid(column=3, row=1)
+    Button(frameDashV, text="-", command=lambda:moins(Vmax,1,0," km/h"), width=1, repeatdelay=500, repeatinterval=100).grid(column=2, row=1)
+    Button(frameDashV, text="+", command=lambda:plus(Vmax,1,200," km/h"), width=1, repeatdelay=500, repeatinterval=100).grid(column=3, row=1)
     
     ttk.Label(frameDashV, textvariable=majMoy).grid(column=1, row=2, padx=5)
-    ttk.Button(frameDashV, text="-", command=lambda:moins(majMoy,0.1,0.1," /s"), width=2).grid(column=2, row=2, pady=5)
-    ttk.Button(frameDashV, text="+", command=lambda:plus(majMoy,0.1,30," /s"), width=2).grid(column=3, row=2, pady=5)
+    Button(frameDashV, text="-", command=lambda:moins(majMoy,0.1,0.1," /s"), width=1, repeatdelay=500, repeatinterval=100).grid(column=2, row=2)
+    Button(frameDashV, text="+", command=lambda:plus(majMoy,0.1,30," /s"), width=1, repeatdelay=500, repeatinterval=100).grid(column=3, row=2)
     
     #Cadre Logs
     frameLog = ttk.Labelframe(cadre, text=' Logs ', padding="5 5 5 5")
@@ -157,8 +157,8 @@ def interfaceParametres():
     genLabels(frameLogL,["Mise à jour relevés :"])
     
     ttk.Label(frameLogV, textvariable=tempo).grid(column=1, row=1, padx=5)
-    ttk.Button(frameLogV, text="-", command=lambda:moins(tempo,0.1,0.1," /s"), width=2).grid(column=2, row=1)
-    ttk.Button(frameLogV, text="+", command=lambda:plus(tempo,0.1,30," /s"), width=2).grid(column=3, row=1)
+    Button(frameLogV, text="-", command=lambda:moins(tempo,0.1,0.1," /s"), width=1, repeatdelay=500, repeatinterval=100).grid(column=2, row=1)
+    Button(frameLogV, text="+", command=lambda:plus(tempo,0.1,30," /s"), width=1, repeatdelay=500, repeatinterval=100).grid(column=3, row=1)
     
     #Cadre bouton
     frameBouton = ttk.Frame(cadre)
