@@ -10,6 +10,16 @@ int vitesseValue; //Simulation
 // the setup function runs once when you press reset or power the board
 void setup() {
   Serial.begin(9600);
+  int code = 0;
+  
+  //Attendre le code de démarrage
+  while(code != 42) {
+    if (Serial.available()) { //s'il y a des données qui arrivent
+      code = Serial.parseInt();//Lecture d'un entier sur le tampon série
+    delay(10);
+    Serial.flush();  //On vide le tampon
+    }
+  }
 }
 
 // the loop function runs over and over again forever

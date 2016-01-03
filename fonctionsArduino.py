@@ -8,6 +8,15 @@
 #  
 
 
+def startArduino(ser):
+    #   Envoi d'un code à l'Arduino pour le démarrer une fois authentifié
+    #
+    #
+    
+    code = "42"
+    ser.write(code.encode('utf-8'))
+    
+
 def decodageArduino(ser):
     #   Permet de décoder les valeurs envoyées par l'arduino
     # 

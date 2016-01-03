@@ -20,7 +20,6 @@ def main():
     
     try:
         ser = serial.Serial('/dev/ttyACM0', 9600)
-        ser.readline()
     except serial.serialutil.SerialException:
         print("Arduino non connecté!")
         exit()
@@ -38,7 +37,7 @@ def main():
     if interfaceSecurite() is not True:
         quit()
     #On envoie le code de démarrage à Arduino
-    #startArduino()
+    startArduino(ser)
     
     #On lance l'interface principale
     HyBike(changeParam,ser)
