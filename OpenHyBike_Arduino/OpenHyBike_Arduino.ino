@@ -16,7 +16,7 @@ void setup() {
   while(code != 42) {
     if (Serial.available()) { //s'il y a des données qui arrivent
       code = Serial.parseInt();//Lecture d'un entier sur le tampon série
-    delay(10);
+    delay(100);
     Serial.flush();  //On vide le tampon
     }
   }
