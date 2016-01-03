@@ -22,20 +22,20 @@ def saveParam(variables):
     for i in range(len(variables)):
         #Si la variable représente un float (min et max VBat, Imax)
         if i in [0,1,4]:
-            params[keys[i]] = float(variables[i].get())
+            params[keys[i]] = float(variables[i].get().split(" ")[0])
         #Si majMoy
         elif i == 7:
-            params[keys[i]] = 30./float(variables[i].get())
+            params[keys[i]] = 30./float(variables[i].get().split(" ")[0])
         #Si tempo
         elif i == 8:
-            params[keys[i]] = 1./float(variables[i].get())
+            params[keys[i]] = 1./float(variables[i].get().split(" ")[0])
         #Sinon c'est des int
         else:
-            params[keys[i]] = int(variables[i].get())
+            params[keys[i]] = int(variables[i].get().split(" ")[0])
     
     ecrireConf(params)
 
-def lireParam(variables):
+def lireParam(variables,unites):
     #   Permet de lire les paramètres du fichier de configuration et de les associer aux variables
     #
     #   @param
@@ -47,9 +47,9 @@ def lireParam(variables):
     for i in range(len(variables)):
         #S'il s'agit de la fréquence de maj des moyennes
         if i == 7:
-            variables[i].set(str(1/(params[keys[i]]/30.)))      #!! présenté comme frequence (nb fois/sec) à convertir!!
+            variables[i].set(str(1/(params[keys[i]]/30.)) + unites[i])      #!! présenté comme frequence (nb fois/sec) à convertir!!
         #S'il s'agit de la fréquence de maj des logs
         elif i == 8:
-            variables[i].set(str(1./params[keys[i]]))             #!! présenté comme frequence (nb fois/sec) à convertir!!
+            variables[i].set(str(1./params[keys[i]]) + unites[i])             #!! présenté comme frequence (nb fois/sec) à convertir!!
         else:
-            variables[i].set(str(params[keys[i]]))
+            variables[i].set(str(params[keys[i]]) + unites[i])
