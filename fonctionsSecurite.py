@@ -19,6 +19,8 @@ def genToken():
         strToken += random.choice(chars)
     token.write(strToken)
     token.close()
+    
+    return strToken
 
 if __name__ == '__main__':
     
