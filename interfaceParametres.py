@@ -34,6 +34,10 @@ def interfaceParametres():
             i += 1
     
     def plus(tkVar, increment, maxi, unite):
+        #   Ajoute l'incrément à tkVar si elle ne dépasse pas le maximum puis ajoute l'unité
+        #
+        #
+        
         if str(type(increment)) == "<class 'int'>":
             if int(tkVar.get().split(" ")[0]) < maxi:
                 tkVar.set(str(int(tkVar.get().split(" ")[0]) + increment) + unite)
@@ -43,6 +47,10 @@ def interfaceParametres():
                 tkVar.set(("{0:." + str(decimales) + "f}").format(float(tkVar.get().split(" ")[0]) + increment) + unite)
             
     def moins(tkVar, increment, mini, unite):
+        #   Retranche l'incrément à tkVar si elle ne dépasse pas le minimum puis ajoute l'unité
+        #
+        #
+        
         if str(type(increment)) == "<class 'int'>":
             if int(tkVar.get().split(" ")[0]) > mini:
                 tkVar.set(str(int(tkVar.get().split(" ")[0]) - increment) + unite)
