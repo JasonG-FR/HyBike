@@ -56,6 +56,9 @@ def interfaceParametres():
     def razParam(*args):
         ecrireDefauts()
         lireParam(paramVars, unites)
+        
+    def annulerParam(*args):
+        lireParam(paramVars, unites)
     
     """Interface"""
     fenetre = Tk()
@@ -164,7 +167,8 @@ def interfaceParametres():
     frameBouton = ttk.Frame(cadre)
     frameBouton.grid(column=1, row=3, columnspan=2)
     ttk.Button(frameBouton, text="Valider", command=majParam).grid(column=1, row=1, pady=5)
-    ttk.Button(frameBouton, text="Réinitialiser", command=razParam).grid(column=2, row=1, pady=5)
+    ttk.Button(frameBouton, text="Annuler", command=annulerParam).grid(column=2, row=1, pady=5)
+    ttk.Button(frameBouton, text="Réinitialiser", command=razParam).grid(column=3, row=1, pady=5)
     
     fenetre.mainloop()
     
