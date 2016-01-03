@@ -53,7 +53,6 @@ def interfaceSecurite():
                     
                     if validation(pinTest,hashPin) and validation(tokenTest,hashToken):
                         #On valide l'accès
-                        print("welcome")
                         accesAutorise[0] = True
                         fenetre.destroy()
                     else:
@@ -74,7 +73,7 @@ def interfaceSecurite():
     """Interface"""
     fenetre = Tk()
     fenetre.title("OpenHyBike")
-    fenetre.geometry("800x480")
+    #fenetre.geometry("800x480")
     
     """Variables"""
     pin0 = IntVar() 
@@ -101,20 +100,20 @@ def interfaceSecurite():
     cadre.columnconfigure(0, weight=1)
     cadre.rowconfigure(0, weight=1)
     
-    ttk.Label(cadre, text="OpenHyBike").grid(column=1, row=1, columnspan=2)
+    ttk.Label(cadre, text="OpenHyBike").grid(column=1, row=1, columnspan=4)
     
     cadrePin = ttk.Frame(cadre, padding="5 5 5 5")
     cadrePin.grid(column=1, row=2, sticky=(N, W, E, S))
     
-    ttk.Label(cadrePin, text="PIN ?").grid(column=1, row=1, columnspan=4)
-    ttk.Label(cadrePin, textvariable=Spin0).grid(column=1, row=2, padx=5)
-    ttk.Label(cadrePin, textvariable=Spin1).grid(column=2, row=2, padx=5)
-    ttk.Label(cadrePin, textvariable=Spin2).grid(column=3, row=2, padx=5)
-    ttk.Label(cadrePin, textvariable=Spin3).grid(column=4, row=2, padx=5)
+    ttk.Label(cadrePin, text="PIN ?").grid(column=1, row=1, padx=86, columnspan=4, pady=10)
+    ttk.Label(cadrePin, textvariable=Spin0).grid(column=1, row=2, padx=5, pady=5)
+    ttk.Label(cadrePin, textvariable=Spin1).grid(column=2, row=2, padx=5, pady=5)
+    ttk.Label(cadrePin, textvariable=Spin2).grid(column=3, row=2, padx=5, pady=5)
+    ttk.Label(cadrePin, textvariable=Spin3).grid(column=4, row=2, padx=5, pady=5)
 
     
     cadreBoutons = ttk.Frame(cadre, padding="5 5 5 5")
-    cadreBoutons.grid(column=2, row=2, sticky=(N, W, E, S))
+    cadreBoutons.grid(column=1, row=3, sticky=(N, W, E, S), columnspan=4)
     
     Button(cadreBoutons, text="7", command=lambda:select(7,pinVars,SpinVars,accesAutorise), width=5, height=4).grid(column=1, row=1)
     Button(cadreBoutons, text="8", command=lambda:select(8,pinVars,SpinVars,accesAutorise), width=5, height=4).grid(column=2, row=1)
