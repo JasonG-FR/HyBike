@@ -9,6 +9,8 @@
 
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
+
 from configuration import *
 from parametres import *
 
@@ -54,8 +56,9 @@ def interfaceParametres():
         fenetre.destroy()
     
     def razParam(*args):
-        ecrireDefauts()
-        lireParam(paramVars, unites)
+        if messagebox.askyesno("Confirmation", "Tous les paramètres actuels seront définitivement perdus, continuer?", icon="warning"):
+            ecrireDefauts()
+            lireParam(paramVars, unites)
         
     def annulerParam(*args):
         lireParam(paramVars, unites)
